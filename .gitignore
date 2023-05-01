@@ -1,0 +1,6 @@
+# binary files
+*.out
+*.o
+
+#vscode problems
+.vscode/
