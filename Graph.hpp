@@ -63,9 +63,10 @@ class Graph
         {
             Node* node = new Node();
             if (is_empty)
-                node->label = n_total++;
+                node->label = n_total;
             else
                 node->label = new_labels[i];
+            n_total++;
             nodes[node->label] = node;
         }
         for (int i = 0; i < n; i++)
@@ -80,17 +81,17 @@ class Graph
     {   
         for (Node* node : nodes[label]->adjNodes)
         {
-            vector<Node*> adj_nodes = node->adjNodes;
-            nodes.erase(remove_if(
-                nodes.begin(), 
-                nodes.end(), 
-                [label](const Node* node) {
-                    return node->label == label; 
+            for (Node* adjNode : node->adjNodes)
+            {
+                if (adjNode->label == label)
+                {
+                    node->adjNodes.erase(remove(node->adjNodes.begin(), node->adjNodes.end(), nodes[label]), node->adjNodes.end());
                 }
-            ), nodes.end());
+            }
         }
         delete nodes[label];
         nodes.erase(label);
+        n--;
     }
     void printGraph() // print graph
     {
@@ -108,7 +109,7 @@ class Graph
     {
         Node* new_node = new Node();
         if (new_label == -1)
-            new_node->label = n_total++;
+            new_node->label = n_total;
         else
             new_node->label = new_label;
         for (auto& node : nodes)
@@ -118,10 +119,13 @@ class Graph
                 if (node.first == label)
                 {
                     new_node->adjNodes.push_back(nodes[label]);
+                    node.second->adjNodes.push_back(new_node);
                 }
             }
         }
         nodes[new_node->label] = new_node;
+        n++;
+        n_total++;
     }
     void addEdge(int label1, int label2) // join two nodes
     {
@@ -138,13 +142,13 @@ class Graph
                 node.second->adjNodes.push_back(nodes[label1]);
                 flag2 = !flag2;
             }
-            if (flag1 || flag2)
+            if (!(flag1 || flag2))
             {
                 break;
             }
         }
     }
-    vector<Node> BFS(Node root) // breadth-first search
+    Graph BFS(Node root) // breadth-first search
     {
         Node* root_node = new Node();
         root_node->label = root.label;
@@ -173,8 +177,9 @@ class Graph
                 }
             }
         }
+        return tree;
     }
-    vector<Node> DFS() // depth-first search
+    /*vector<Node> DFS() // depth-first search
     {
 
     }
@@ -185,8 +190,5 @@ class Graph
     vector<Node> APSP() // all pairs shortest path
     {
 
-    }
+    }*/
 };
-
-
-
