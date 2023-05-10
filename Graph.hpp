@@ -55,7 +55,7 @@ class Graph
     }
 
     // public methods
-    void initializeGraph(vector<vector<int>> adj_lists, vector<int> new_labels = vector<int>()) // initialize graph
+    void initializeGraph (vector<vector<int>> adj_lists, vector<int> new_labels = vector<int>()) // initialize graph
     {
         bool is_empty = new_labels.empty();
         n = adj_lists.size();
@@ -77,7 +77,7 @@ class Graph
             }
         }   
     }
-    void deleteNode(int label) // delete node
+    void deleteNode (int label) // delete node
     {   
         for (Node* node : nodes[label]->adjNodes)
         {
@@ -93,7 +93,7 @@ class Graph
         nodes.erase(label);
         n--;
     }
-    void printGraph() // print graph
+    void printGraph () // print graph
     {
         for (auto& node : nodes)
         {
@@ -105,7 +105,7 @@ class Graph
             cout << endl;
         }
     }
-    void addNode(vector<int> labels = vector<int>(), int new_label = -1) // add node
+    void addNode (vector<int> labels = vector<int>(), int new_label = -1) // add node using adjacent nodes
     {
         Node* new_node = new Node();
         if (new_label == -1)
@@ -127,7 +127,12 @@ class Graph
         n++;
         n_total++;
     }
-    void addEdge(int label1, int label2) // join two nodes
+    void addNode (Node* node) // add node using Node*
+    {
+        nodes[node->label] = node;
+        n_total++;
+    }
+    void addEdge (int label1, int label2) // join two nodes
     {
         bool flag1 = true, flag2 = true;
         for (auto& node : nodes)
@@ -148,32 +153,45 @@ class Graph
             }
         }
     }
-    Graph BFS(Node root) // breadth-first search
+    Graph BFS (Node* root) // breadth-first search
     {
-        Node* root_node = new Node();
-        root_node->label = root.label;
-        root_node->adjNodes = root.adjNodes;
-        vector<vector<Node*>> layers;
+        /*
+        Returns a Graph object that is in the form of a tree, i.e, each node has
+        only a parent and children nodes.
+        */
         Graph tree;
-        tree.addNode(vector<int>(), root.label);
-        layers.push_back(vector<Node*>());
-        layers[0].push_back(root_node);
-        map<Node*, bool> discovered;
-        discovered[root_node] = true;
-        int i = 0;
-        while(!layers[i].empty())
+        Node* new_root = new Node();
+        new_root->label = root->label;
+        new_root->adjNodes = {};
+        map<Node*, int> discovered;
+        discovered[root] = 1;
+
+        queue<Node*> order;
+        queue<Node*> original_nodes;
+        order.push(new_root);
+        original_nodes.push(root);
+
+        tree.nodes[new_root->label] = new_root;
+
+        while (!order.empty())
         {
-            for (int j = 0; j < layers[i].size(); j++)
+            Node* node = order.front();
+            Node* original_node = original_nodes.front();
+            order.pop();
+            original_nodes.pop();
+            for (Node* adjNode : original_node->adjNodes)
             {
-                for (int k = 0; k < layers[i][j]->adjNodes.size(); k++)
+                if (discovered[adjNode] == 0)
                 {
-                    if (discovered[layers[i][j]->adjNodes[k]] == false)
-                    {
-                        discovered[layers[i][j]->adjNodes[k]] == true;
-                        vector<int> parent_node;
-                        parent_node.push_back(layers[i][j]->label);
-                        tree.addNode(parent_node);
-                    }
+                    discovered[adjNode] = 1;
+                    Node* temp_node = new Node();
+                    temp_node->label = adjNode->label;
+                    temp_node->adjNodes.push_back(node);
+                    node->adjNodes.push_back(temp_node);
+                    order.push(temp_node);
+                    original_nodes.push(adjNode);
+
+                    tree.nodes[temp_node->label] = temp_node;
                 }
             }
         }
