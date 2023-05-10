@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 #include <queue>
+#include <stack>
 using namespace std;
 
 class Graph 
@@ -197,11 +198,51 @@ class Graph
         }
         return tree;
     }
-    /*vector<Node> DFS() // depth-first search
+    Graph DFS(Node* root) // depth-first search
     {
+        /*
+        Returns a Graph object that is in the form of a tree, i.e, each node has
+        only a parent and children nodes.
+        */
+        Graph tree;
+        Node* new_root = new Node();
+        new_root->label = root->label;
+        new_root->adjNodes = {};
+        map<Node*, int> discovered;
+        discovered[root] = 1;
 
+        stack<Node*> order;
+        stack<Node*> original_nodes;
+        order.push(new_root);
+        original_nodes.push(root);
+
+        tree.nodes[new_root->label] = new_root;
+
+        while (!order.empty())
+        {
+            Node* node = order.top();
+            Node* original_node = original_nodes.top();
+            order.pop();
+            original_nodes.pop();
+            for (Node* adjNode : original_node->adjNodes)
+            {
+                if (discovered[adjNode] == 0)
+                {
+                    discovered[adjNode] = 1;
+                    Node* temp_node = new Node();
+                    temp_node->label = adjNode->label;
+                    temp_node->adjNodes.push_back(node);
+                    node->adjNodes.push_back(temp_node);
+                    order.push(temp_node);
+                    original_nodes.push(adjNode);
+
+                    tree.nodes[temp_node->label] = temp_node;
+                }
+            }
+        }
+        return tree;
     }
-    vector<Node> Dijkstra() // Dijkstra's algorithm 
+    /*vector<Node> Dijkstra() // Dijkstra's algorithm 
     {
 
     }
