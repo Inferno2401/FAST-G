@@ -2,33 +2,33 @@
 #include <vector>
 using namespace std;
 
+// Graph Class
 class Graph{
 
 public:
-    
+    // member variables
     int num_nodes;      // Number of nodes in the graph
+    // Node struct
     struct Node{
-        int index;              // Index of the node
-        int label;
+        int index;      // Index of the node in the nodes vector
+        int label;      // Label of the node the user decides            
         vector<Node> AdjList; // Each node is associated with a vector containing nodes that are adjacent to it
-        int degree;
+        int degree;     // Degree of the node, may not be necessary as a variable, but I have implemented it
     };
     vector<Node> nodes; // Vector containing the nodes of the graph
 
-    Graph();
+    // member functions
+    Graph();    // constructor
     void inputGraph();   // Function to take the entire graph as an input
-    void printGraph();   // Function to print the graph
-    int returnIndex(int);
-    void addNode(int);    // Function to add a node to a graph
-    void addNode(Node);
-    void addNode(Node, int);
-    void addEdge(Node, Node);
-    void addEdge(int, int);
-    void assignDegree();
-    Graph BFS(int);
+    void printGraph();   // Function to print the graph as an adjacency list
+    int returnIndex(int);   // Function to return the index of a node with the label as parameter
+    void addNode(int);    // Function to add a node to a graph, with label as parameter
+    void addEdge(int, int);     // Function to add an edge with two labels as parameters
+    void assignDegree();    // Function to assign degrees to the graph when the addEdge function is used
+    Graph BFS(int);     // BFS, label of source node is taken as input
 };
 
-Graph :: Graph(){
+Graph :: Graph(){   // Defining constructor
     num_nodes = 0;
 }
 
@@ -42,9 +42,9 @@ void Graph :: inputGraph(){          // Defining input function
         Node node;    // node is the node that will be present in our graph
         node.index = i;
         cout << "Enter the label of the " << i+1 << " node: ";
-        cin >> node.label;
+        cin >> node.label;   // User defines the labels for the nodes and will only use them, indexes is just for the code
         cout << "Enter the degree of this node: ";
-        cin >> node.degree;
+        cin >> node.degree;     // User defines the degree of the node
         nodes.push_back(node); 
     } 
     for(int i = 0; i < n; i++){
@@ -54,12 +54,7 @@ void Graph :: inputGraph(){          // Defining input function
         for(int k = 0; k < nodes[i].degree; k++){
             cout << "Enter the label of the adjacent node: ";
             cin >> val;
-            for(j = 0; j < n; j++){
-                if(val == nodes[j].label){
-                    break;
-                }
-            }
-            nodes[i].AdjList.push_back(nodes[j]);
+            nodes[i].AdjList.push_back(nodes[returnIndex(val)]);    // Adding nodes with label val to the adjacency list of nodes[i]. Self note - I think this step is not accurate since nodes[returnIndex(val)] is not completely defined. So either I have to convert the adjList to simply an integer vector to simply store the labels, or convert it into a Node* vector
         }
     }
 }
@@ -68,31 +63,24 @@ void Graph :: printGraph(){      // Defining print function
     cout << "The number of nodes in this graph are: " << num_nodes << endl;
     cout << "The adjacency list is as follows: " << endl;
     for (int i = 0; i < num_nodes; i++){
-        cout << "Label of this node is: " << nodes[i].label << ". "; // Printing index of node
+        cout << "Label of this node is: " << nodes[i].label << ". "; // Printing label of node
         cout << "The nodes adjacent to this node are: ";
         for (int j = 0; j < nodes[i].degree; j++){
-            cout << nodes[i].AdjList[j].label << " "; // Printing indices of adjacent nodes
+            cout << nodes[i].AdjList[j].label << " "; // Printing labels of adjacent nodes
         }
         cout << endl;
     }
 }
 
-void Graph :: addEdge(Node start, Node end){    // Defining add edge function, start is the start node of the edge and end is the end
-    start.degree++;    // Increase the degree of the start node
-    end.degree++;      // Increase the degree of the end node
-    start.AdjList.push_back(end);   // Adding the end node to the adjacency list of start 
-    end.AdjList.push_back(start);   // Adding the start node to the adjacency list of end
-}
-
-void Graph :: addEdge(int label_start, int label_end){
+void Graph :: addEdge(int label_start, int label_end){      // Defining function to add an edge, assuming the two labels already exist.
     int start_index, end_index;
     start_index = returnIndex(label_start);
     end_index = returnIndex(label_end);
-    nodes[start_index].AdjList.push_back(nodes[end_index]);
+    nodes[start_index].AdjList.push_back(nodes[end_index]);     // Adding the nodes to each others' adjlist
     nodes[end_index].AdjList.push_back(nodes[start_index]);
 }
 
-void Graph :: assignDegree(){
+void Graph :: assignDegree(){       // Defining function to assign degrees to the nodes and its adjacent nodes, will not be required if I better the code in the future.
     for(int i = 0; i < num_nodes; i++){
         nodes[i].degree = nodes[i].AdjList.size();
     }
@@ -104,40 +92,25 @@ void Graph :: assignDegree(){
 }
 
 void Graph :: addNode(int val){       // Defining the add node function
-    num_nodes++;
-    Node node;
+    num_nodes++;    // Increasing the number of nodes
+    Node node;      // Initialising a node and adding it to the nodes vector
     node.label = val;
     node.index = num_nodes - 1;
     node.degree = 0;
     nodes.push_back(node);
 }
 
-void Graph :: addNode(Node node){
-    num_nodes++;
-    node.index = num_nodes - 1;
-    nodes.push_back(node);
-}
-
-void Graph :: addNode(Node node, int val){
-    num_nodes++;
-    node.AdjList.clear();
-    node.label = val;
-    node.index = num_nodes - 1;
-    node.degree = 0;
-    nodes.push_back(node);
-}
-
-int Graph :: returnIndex(int lab){
+int Graph :: returnIndex(int lab){      // Defining a function that returns the index of a node with a label lab
     int index;
     for(index = 0; index < num_nodes; index++){
         if( nodes[index].label == lab){
-            break;
+            break;      // Break out of for loop if lab is found amongst the labels, hence index is one required
         }
     }
     return index;
 }
 
-Graph Graph :: BFS(int source_label){
+Graph Graph :: BFS(int source_label){   // Implementing BFS, followed the exact same algorithm given in the textbook, need to change it a bit once I change the AdjList, will be done soon.
     Graph T;
     int index = 0;
     bool Discovered[num_nodes];
@@ -152,20 +125,11 @@ Graph Graph :: BFS(int source_label){
     while( L[i].empty() != 1 ){   
         L.push_back({});  
         for(int j = 0; j < L[i].size(); j++){
-            // cout << "i - " << i << " j - " << j << endl;
-            // cout << "Label of node is " << L[i][j].label << " Degree of this node is " << L[i][j].degree << endl;
             for(int k = 0; k < L[i][j].degree; k++){
-                // cout << "i - " << i << " j - " << j << " k - " << k << endl;
-                // cout << "Before: Index - " << L[i][j].AdjList[k].index;
-                // cout << " Discovered? " << Discovered[L[i][j].AdjList[k].index] << endl;
                 if(Discovered[L[i][j].AdjList[k].index] == false){
                     Discovered[L[i][j].AdjList[k].index] = true;
-                    // cout << "After: Index - " << L[i][j].AdjList[k].index << " Discovered? " << Discovered[L[i][j].AdjList[k].index] << endl;
                     T.addNode(L[i][j].AdjList[k].label);
-                    // cout << "Node added. Degree: " << L[i][j].AdjList[k].degree << endl;
                     T.addEdge(nodes[returnIndex(L[i][j].label)].label, nodes[returnIndex(L[i][j].AdjList[k].label)].label);
-                    // cout << "Edge added. Degree: " << L[i][j].AdjList[k].degree << endl;
-                    // cout << "The label being pushed into L[" << i+1 << "] is " << L[i][j].AdjList[k].label << " Index:" << L[i][j].AdjList[k].index << "The degree is " << L[i][j].AdjList[k].degree << endl;
                     L[i+1].push_back(nodes[L[i][j].AdjList[k].index]);
                 }
             }
