@@ -5,6 +5,7 @@
 #include <string>
 #include <queue>
 #include <stack>
+#include <limits>
 using namespace std;
 
 class Graph 
@@ -154,7 +155,7 @@ class Graph
             }
         }
     }
-    Graph BFS (Node* root) // breadth-first search
+    Graph BFS (int root) // breadth-first search
     {
         /*
         Returns a Graph object that is in the form of a tree, i.e, each node has
@@ -162,15 +163,15 @@ class Graph
         */
         Graph tree;
         Node* new_root = new Node();
-        new_root->label = root->label;
+        new_root->label = root;
         new_root->adjNodes = {};
-        map<Node*, int> discovered;
+        map<int, int> discovered;
         discovered[root] = 1;
 
         queue<Node*> order;
         queue<Node*> original_nodes;
         order.push(new_root);
-        original_nodes.push(root);
+        original_nodes.push(nodes[root]);
 
         tree.nodes[new_root->label] = new_root;
 
@@ -182,9 +183,9 @@ class Graph
             original_nodes.pop();
             for (Node* adjNode : original_node->adjNodes)
             {
-                if (discovered[adjNode] == 0)
+                if (discovered[adjNode->label] == 0)
                 {
-                    discovered[adjNode] = 1;
+                    discovered[adjNode->label] = 1;
                     Node* temp_node = new Node();
                     temp_node->label = adjNode->label;
                     temp_node->adjNodes.push_back(node);
@@ -198,7 +199,7 @@ class Graph
         }
         return tree;
     }
-    Graph DFS(Node* root) // depth-first search
+    Graph DFS(int root) // depth-first search
     {
         /*
         Returns a Graph object that is in the form of a tree, i.e, each node has
@@ -206,15 +207,15 @@ class Graph
         */
         Graph tree;
         Node* new_root = new Node();
-        new_root->label = root->label;
+        new_root->label = root;
         new_root->adjNodes = {};
-        map<Node*, int> discovered;
+        map<int, int> discovered;
         discovered[root] = 1;
 
         stack<Node*> order;
         stack<Node*> original_nodes;
         order.push(new_root);
-        original_nodes.push(root);
+        original_nodes.push(nodes[root]);
 
         tree.nodes[new_root->label] = new_root;
 
@@ -226,9 +227,9 @@ class Graph
             original_nodes.pop();
             for (Node* adjNode : original_node->adjNodes)
             {
-                if (discovered[adjNode] == 0)
+                if (discovered[adjNode->label] == 0)
                 {
-                    discovered[adjNode] = 1;
+                    discovered[adjNode->label] = 1;
                     Node* temp_node = new Node();
                     temp_node->label = adjNode->label;
                     temp_node->adjNodes.push_back(node);
@@ -242,11 +243,47 @@ class Graph
         }
         return tree;
     }
-    /*vector<Node> Dijkstra() // Dijkstra's algorithm 
+    pair<map<int, int>, map<int, int>> Dijkstra(int s) // Dijkstra's algorithm 
     {
+        map<int, int> d;
+        map<int, int> p;
+        map<int, bool> marked;
 
+        for (auto& node : nodes)
+        {
+            d[node.first] = numeric_limits<int>::max();
+        }
+        d[s] = 0;
+        int d_min = numeric_limits<int>::max();
+        int label_min = s;
+        for (int i = 0; i < n; i++)
+        {
+            d_min = numeric_limits<int>::max();
+            for (auto& node : nodes)
+            {
+                if (marked[node.first])
+                {
+                    continue;
+                }
+                if (d[node.first] <= d_min)
+                {
+                    d_min = d[node.first];
+                    label_min = node.first;
+                }
+            }
+            for (Node* adjNode : nodes[label_min]->adjNodes)
+            {
+                if (!marked[adjNode->label] && d[adjNode->label] >= d[label_min] + 1)
+                {
+                    d[adjNode->label] = d[label_min] + 1;
+                    p[adjNode->label] = label_min;
+                }
+            }
+            marked[label_min] = true;      
+        }
+        return {d, p};
     }
-    vector<Node> APSP() // all pairs shortest path
+    /*vector<Node> APSP() // all pairs shortest path
     {
 
     }*/
@@ -258,8 +295,25 @@ int main()
     Graph graph({0, 1, 2, 3}, {{3, 1}, {0, 2}, {1, 3}, {2, 0}});
     graph.addEdge(0, 2);
     graph.addNode({0, 2, 3}, 8);
+    graph.addNode({8, 3}, 9);
     graph.printGraph();
 
-    Graph tree = graph.DFS(graph.nodes[1]);
+    cout << endl;
+
+    Graph tree = graph.DFS(1);
     tree.printGraph();
+
+    cout << endl;
+
+    map<int, int> d = graph.Dijkstra(1).first;
+    map<int, int> p = graph.Dijkstra(1).second;
+    for (auto& dist : d)
+    {
+        cout << dist.first << ": " << dist.second << endl;
+    }
+    cout << endl;
+    for (auto& prev : p)
+    {
+        cout << prev.first << ": " << prev.second << endl;
+    }
 }
