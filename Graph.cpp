@@ -245,6 +245,10 @@ class Graph
     }
     pair<map<int, int>, map<int, int>> Dijkstra(int s) // Dijkstra's algorithm 
     {
+        /*
+        Returns a pair with a map of distances of nodes from root node and a map
+        of previous nodes for the shortest path from the root node
+        */
         map<int, int> d;
         map<int, int> p;
         map<int, bool> marked;
@@ -283,10 +287,46 @@ class Graph
         }
         return {d, p};
     }
-    /*vector<Node> APSP() // all pairs shortest path
+    map<vector<int>, int> APSP() // all pairs shortest path
     {
-
-    }*/
+        /*
+        Returns a map of distances between any two nodes of the graph
+        */
+        map<vector<int>, int> D;
+        for (auto& node1 : nodes)
+        {
+            for (auto& node2 : nodes)
+            {
+                if (node1 == node2)
+                {
+                    D[{node1.first, node2.first}] = 0;
+                    continue;
+                }
+                D[{node1.first, node2.first}] = numeric_limits<int>::max();
+            }
+        }
+        bool flag = false;
+        for (auto& node : nodes)
+        {
+            if (flag)
+            {
+                break;
+            }
+            map<int, int> d = Dijkstra(node.first).first;
+            int changes = 0;
+            for (auto& dist : d)
+            {
+                if (D[{node.first, dist.first}] > dist.second) 
+                {
+                    D[{node.first, dist.first}] = min(dist.second, D[{node.first, dist.first}]);
+                    D[{dist.first, node.first}] = min(dist.second, D[{dist.first, node.first}]);
+                    changes++;
+                }  
+            }
+            flag = true ? changes == 0 : false;
+        }
+        return D;
+    }
 };
 
 int main()
@@ -307,6 +347,17 @@ int main()
 
     map<int, int> d = graph.Dijkstra(1).first;
     map<int, int> p = graph.Dijkstra(1).second;
+
+    map<vector<int>, int> D = graph.APSP();
+
+    for (auto &node1 : graph.nodes)
+    {
+        for (auto &node2 : graph.nodes)
+        {
+            cout << node1.first << ", " << node2.first << ": " << D[{node1.first, node2.first}] << endl;
+        }
+    }
+
     for (auto& dist : d)
     {
         cout << dist.first << ": " << dist.second << endl;
