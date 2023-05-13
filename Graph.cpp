@@ -78,19 +78,13 @@ class Graph
             {
                 nodes[nodes[i]->label]->adjNodes.push_back(nodes[adj_lists[i][j]]);
             }
-        }   
+        }
     }
     void deleteNode (int label) // delete node
     {   
         for (Node* node : nodes[label]->adjNodes)
         {
-            for (Node* adjNode : node->adjNodes)
-            {
-                if (adjNode->label == label)
-                {
-                    node->adjNodes.erase(remove(node->adjNodes.begin(), node->adjNodes.end(), nodes[label]), node->adjNodes.end());
-                }
-            }
+            node->adjNodes.erase(remove(node->adjNodes.begin(), node->adjNodes.end(), nodes[label]), node->adjNodes.end());
         }
         delete nodes[label];
         nodes.erase(label);
@@ -115,16 +109,10 @@ class Graph
             new_node->label = n_total;
         else
             new_node->label = new_label;
-        for (auto& node : nodes)
+        for (int label : labels)
         {
-            for (int label : labels)
-            {
-                if (node.first == label)
-                {
-                    new_node->adjNodes.push_back(nodes[label]);
-                    node.second->adjNodes.push_back(new_node);
-                }
-            }
+            nodes[label]->adjNodes.push_back(new_node);
+            new_node->adjNodes.push_back(nodes[label]);
         }
         nodes[new_node->label] = new_node;
         n++;
@@ -133,28 +121,13 @@ class Graph
     void addNode (Node* node) // add node using Node*
     {
         nodes[node->label] = node;
+        n++;
         n_total++;
     }
     void addEdge (int label1, int label2) // join two nodes
     {
-        bool flag1 = true, flag2 = true;
-        for (auto& node : nodes)
-        {
-            if (flag1 && node.first == label1)
-            {
-                node.second->adjNodes.push_back(nodes[label2]);
-                flag1 = !flag1;
-            }
-            if (flag2 && node.first == label2)
-            {
-                node.second->adjNodes.push_back(nodes[label1]);
-                flag2 = !flag2;
-            }
-            if (!(flag1 || flag2))
-            {
-                break;
-            }
-        }
+        nodes[label1]->adjNodes.push_back(nodes[label2]);
+        nodes[label2]->adjNodes.push_back(nodes[label1]);
     }
     Graph BFS (int root) // breadth-first search
     {
