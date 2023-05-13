@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <stack>
+#define INFTY 10000000
 using namespace std;
 
 // Graph Class
@@ -27,6 +28,7 @@ public:
     void addEdge(int, int);     // Function to add an edge with two labels as parameters
     Graph BFS(int);     // BFS, label of source node is taken as input
     Graph DFS(int);     // DFS, label of source node is taken as input
+    vector<int> Dijkstra(int);      // Dijkstra's Algorithm, label of source node is taken as input
 };
 
 Graph :: Graph(){   // Defining constructor
@@ -138,22 +140,20 @@ Graph Graph :: BFS(int source_label){   // Implementing BFS, followed the exact 
     return T;
 }
 
-Graph Graph :: DFS(int source_label){   // Implementing DFS, followed exact same algo as given in textbook, however need to check it
+Graph Graph :: DFS(int source_label){   // Implementing DFS, followed exact same algo as given in textbook
     Graph T;
     stack<Node> S;
     Node parent[num_nodes];
     bool Discovered[num_nodes];
-    int count[num_nodes];
-    for(int m = 0; m < num_nodes; m++){
-        count[m] = 0;
-    }
+    // int count[num_nodes];
+    // for(int m = 0; m < num_nodes; m++){
+    //     count[m] = 0;
+    // }
     for(int m = 0; m < num_nodes; m++){
         Discovered[m] = false;
     }
     S.push(nodes[returnIndex(source_label)]);
     while( S.empty() != 1 ){
-        bool flag = false;
-        bool flag1 = true;
         Node node = S.top();
         S.pop();
         if(!(T.returnIndex(node.label)+1)){
@@ -167,11 +167,9 @@ Graph Graph :: DFS(int source_label){   // Implementing DFS, followed exact same
                 // cout << "Added edge " << node.label << " , " << parent[returnIndex(node.label)].label << endl;
             }
             for(int i = 0; i < node.degree; i++){
-                S.push(nodes[returnIndex(node.AdjList[i])]);
-                // cout << "Pushed " << node.AdjList[i] << " into the stack" << endl;
-                count[returnIndex(node.AdjList[i])]++;
-                // cout << "Count of index " << returnIndex(node.AdjList[i]) << " and value " << node.AdjList[i] << " is " << count[returnIndex(node.AdjList[i])] << endl;
-                if(count[returnIndex(node.AdjList[i])] == 1 && node.AdjList[i]!=source_label){
+                if(Discovered[returnIndex(node.AdjList[i])] == false){
+                    S.push(nodes[returnIndex(node.AdjList[i])]);
+                    // cout << "Pushed " << node.AdjList[i] << " into the stack" << endl;
                     parent[returnIndex(node.AdjList[i])] = node;
                     // cout << "Parent of " << node.AdjList[i] << " is " << node.label << endl;
                 }
@@ -179,4 +177,8 @@ Graph Graph :: DFS(int source_label){   // Implementing DFS, followed exact same
         }
     }
     return T;
+}
+
+vector<int> Graph :: Dijkstra(int source_label){
+
 }

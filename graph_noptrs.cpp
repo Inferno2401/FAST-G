@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <stack>
+#define INFTY 10000000
 using namespace std;
 
 // Graph Class
@@ -27,6 +28,7 @@ public:
     void addEdge(int, int);     // Function to add an edge with two labels as parameters
     Graph BFS(int);     // BFS, label of source node is taken as input
     Graph DFS(int);     // DFS, label of source node is taken as input
+    vector<int> Dijkstra(int);      // Dijkstra's Algorithm, label of source node is taken as input
 };
 
 Graph :: Graph(){   // Defining constructor
@@ -138,22 +140,20 @@ Graph Graph :: BFS(int source_label){   // Implementing BFS, followed the exact 
     return T;
 }
 
-Graph Graph :: DFS(int source_label){   // Implementing DFS, followed exact same algo as given in textbook, however need to check it
+Graph Graph :: DFS(int source_label){   // Implementing DFS, followed exact same algo as given in textbook
     Graph T;
     stack<Node> S;
     Node parent[num_nodes];
     bool Discovered[num_nodes];
-    int count[num_nodes];
-    for(int m = 0; m < num_nodes; m++){
-        count[m] = 0;
-    }
+    // int count[num_nodes];
+    // for(int m = 0; m < num_nodes; m++){
+    //     count[m] = 0;
+    // }
     for(int m = 0; m < num_nodes; m++){
         Discovered[m] = false;
     }
     S.push(nodes[returnIndex(source_label)]);
     while( S.empty() != 1 ){
-        bool flag = false;
-        bool flag1 = true;
         Node node = S.top();
         S.pop();
         if(!(T.returnIndex(node.label)+1)){
@@ -167,11 +167,9 @@ Graph Graph :: DFS(int source_label){   // Implementing DFS, followed exact same
                 // cout << "Added edge " << node.label << " , " << parent[returnIndex(node.label)].label << endl;
             }
             for(int i = 0; i < node.degree; i++){
-                S.push(nodes[returnIndex(node.AdjList[i])]);
-                // cout << "Pushed " << node.AdjList[i] << " into the stack" << endl;
-                count[returnIndex(node.AdjList[i])]++;
-                // cout << "Count of index " << returnIndex(node.AdjList[i]) << " and value " << node.AdjList[i] << " is " << count[returnIndex(node.AdjList[i])] << endl;
-                if(count[returnIndex(node.AdjList[i])] == 1 && node.AdjList[i]!=source_label){
+                if(Discovered[returnIndex(node.AdjList[i])] == false){
+                    S.push(nodes[returnIndex(node.AdjList[i])]);
+                    // cout << "Pushed " << node.AdjList[i] << " into the stack" << endl;
                     parent[returnIndex(node.AdjList[i])] = node;
                     // cout << "Parent of " << node.AdjList[i] << " is " << node.label << endl;
                 }
@@ -181,58 +179,63 @@ Graph Graph :: DFS(int source_label){   // Implementing DFS, followed exact same
     return T;
 }
 
+vector<int> Graph :: Dijkstra(int source_label){
+
+}
+
 int main(){
     // test code
     Graph G;
     // G.inputGraph();
-    G.addNode(6);
-    G.addNode(2);
-    G.addNode(3);
-    G.addNode(15);
-    G.addNode(48);    
-    G.addNode(83);
-    G.addNode(71);
-    G.addNode(5);
-    G.addNode(64);
-    G.addNode(16);
-    G.addNode(8);
-    G.addNode(23);
-    G.addEdge(6,2);
-    G.addEdge(6,15);
-    G.addEdge(2,3);
-    G.addEdge(3,15);
-    G.addEdge(3,48);
-    G.addEdge(15,48);
-    G.addEdge(48,83);
-    G.addEdge(48,71);
-    G.addEdge(71,16);
-    G.addEdge(16,8);
-    G.addEdge(16,23);
-    G.addEdge(71,5);
-    G.addEdge(5,64);
-    G.addEdge(64,3);
-    // G.addNode(1);
+    // G.addNode(6);
     // G.addNode(2);
     // G.addNode(3);
-    // G.addNode(4);
+    // G.addNode(15);
+    // G.addNode(48);    
+    // G.addNode(83);
+    // G.addNode(71);
     // G.addNode(5);
-    // G.addNode(6);
-    // G.addNode(7);
+    // G.addNode(64);
+    // G.addNode(16);
     // G.addNode(8);
-    // G.addEdge(1,2);
-    // G.addEdge(1,3);
+    // G.addNode(23);
+    // G.addEdge(6,2);
+    // G.addEdge(6,15);
     // G.addEdge(2,3);
-    // G.addEdge(3,5);
-    // G.addEdge(5,4);
-    // G.addEdge(5,6);
-    // G.addEdge(2,4);
-    // G.addEdge(2,5);
-    // G.addEdge(3,7);
-    // G.addEdge(3,8);
-    // G.printGraph();
-    Graph B = G.BFS(71);
+    // G.addEdge(3,15);
+    // G.addEdge(3,48);
+    // G.addEdge(15,48);
+    // G.addEdge(48,83);
+    // G.addEdge(48,71);
+    // G.addEdge(71,16);
+    // G.addEdge(16,8);
+    // G.addEdge(16,23);
+    // G.addEdge(71,5);
+    // G.addEdge(5,64);
+    // G.addEdge(64,3);
+    G.addNode(1);
+    G.addNode(2);
+    G.addNode(3);
+    G.addNode(4);
+    G.addNode(5);
+    G.addNode(6);
+    G.addNode(7);
+    G.addNode(8);
+    G.addEdge(1,2);
+    G.addEdge(1,3);
+    G.addEdge(2,3);
+    G.addEdge(3,5);
+    G.addEdge(5,4);
+    G.addEdge(5,6);
+    G.addEdge(2,4);
+    G.addEdge(2,5);
+    G.addEdge(3,7);
+    G.addEdge(3,8);
+    G.addEdge(7,8);
+    G.printGraph();
+    Graph B = G.BFS(1);
     B.printGraph();
-    Graph D = G.DFS(71);
+    Graph D = G.DFS(1);
     D.printGraph();
     return 0;
 }
