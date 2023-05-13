@@ -1,8 +1,26 @@
 #include <iostream>
 #include <vector>
 #include <stack>
+#include <utility>
 #define INFTY 10000000
+#define INFTY2 100000000
 using namespace std;
+
+int minIndex(vector<int> arr){      // Function to determine index of minimum term of an array
+    int min = INFTY;
+    int index;
+    for(int i = 0; i < arr.size(); i++){
+        if(arr[i] < min){
+            min = arr[i];
+        }
+    }
+    for(int i = 0; i < arr.size(); i++){
+        if(arr[i] == min){
+            index = i;
+        }
+    }
+    return index;
+}
 
 // Graph Class
 class Graph{
@@ -15,6 +33,7 @@ public:
         int index;      // Index of the node in the nodes vector
         int label;      // Label of the node the user decides            
         vector<int> AdjList; // Each node is associated with a vector containing labels of nodes that are adjacent to it
+        pair<vector<int>,vector<int>> AdjWeight;
         int degree;     // Degree of the node, may not be necessary as a variable, but I have implemented it
     };
     vector<Node> nodes; // Vector containing the nodes of the graph
@@ -23,9 +42,12 @@ public:
     Graph();    // constructor
     void inputGraph();   // Function to take the entire graph as an input
     void printGraph();   // Function to print the graph as an adjacency list
-    int returnIndex(int);   // Function to return the index of a node with the label as parameter
     void addNode(int);    // Function to add a node to a graph, with label as parameter
     void addEdge(int, int);     // Function to add an edge with two labels as parameters
+    void addWeightedEdge(int, int, int);    // Function to add a weighted edge with two labels and weight as parameters
+    bool edgeExists(int, int);      // Function to check if an edge exists between two labels
+    int returnWeight(int, int);     // Function to return the weight of the edge between two labels
+    int returnIndex(int);   // Function to return the index of a node with the label as parameter
     Graph BFS(int);     // BFS, label of source node is taken as input
     Graph DFS(int);     // DFS, label of source node is taken as input
     vector<int> Dijkstra(int);      // Dijkstra's Algorithm, label of source node is taken as input
@@ -85,6 +107,20 @@ void Graph :: addEdge(int label_start, int label_end){      // Defining function
     nodes[end_index].AdjList.push_back(label_start);
 }
 
+void Graph :: addWeightedEdge(int label_start, int label_end, int weight){  // Defining function to add an edge, with weight
+    int start_index, end_index;
+    start_index = returnIndex(label_start);
+    end_index = returnIndex(label_end);
+    nodes[start_index].degree++;        // Increasing the degree of the nodes
+    nodes[end_index].degree++;
+    nodes[start_index].AdjList.push_back(label_end);     // Adding the labels to each others' adjlist
+    nodes[end_index].AdjList.push_back(label_start);
+    nodes[start_index].AdjWeight.first.push_back(label_end);    // Adding weight
+    nodes[start_index].AdjWeight.second.push_back(weight);
+    nodes[end_index].AdjWeight.first.push_back(label_start);
+    nodes[end_index].AdjWeight.second.push_back(weight);
+}
+
 void Graph :: addNode(int val){       // Defining the add node function
     num_nodes++;    // Increasing the number of nodes
     Node node;      // Initialising a node and adding it to the nodes vector
@@ -109,6 +145,39 @@ int Graph :: returnIndex(int lab){      // Defining a function that returns the 
     }
     else{
         return -1;
+    }
+}
+
+int Graph :: returnWeight(int label1, int label2){      // Defining the function that returns the weight
+    if(label1 == label2){
+        return 0;
+    }
+    if(edgeExists(label1, label2)){
+        int i;
+        for(i = 0; i < nodes[returnIndex(label1)].degree; i++){
+            if(label2 == nodes[returnIndex(label1)].AdjList[i]){
+                break;
+            }
+        }
+        return nodes[returnIndex(label1)].AdjWeight.second[i];
+    }
+    else{
+        return INFTY;
+    }
+}
+
+bool Graph :: edgeExists(int label1, int label2){   // Defining the function that tells if the edge exists
+    bool flag = false;
+    for(int i = 0; i < nodes[returnIndex(label1)].degree; i++){
+        if( nodes[returnIndex(label1)].AdjList[i] == label2 ){
+            flag = true;
+        }
+    }
+    if( flag == true ){
+        return 1;
+    }
+    else{
+        return 0;
     }
 }
 
@@ -179,26 +248,58 @@ Graph Graph :: DFS(int source_label){   // Implementing DFS, followed exact same
     return T;
 }
 
-vector<int> Graph :: Dijkstra(int source_label){
-
+vector<int> Graph :: Dijkstra(int source_label){    // Implementing Dijkstra, will add comments if required
+    vector<int> Distance;
+    vector<int> DistanceCopy;
+    vector<bool> visited;
+    vector<bool> True;
+    int index;
+    for(int i = 0; i < num_nodes; i++){
+        Distance.push_back(0);
+    }
+    for(int i = 0; i < num_nodes; i++){
+        Distance[i] = returnWeight(source_label, nodes[i].label);
+    }
+    DistanceCopy = Distance;
+    for(int i = 0; i < num_nodes; i++){
+        visited.push_back(false);
+    }
+    for(int i = 0; i < num_nodes; i++){
+        True.push_back(true);
+    }
+    visited[returnIndex(source_label)] = true;
+    cout << returnIndex(source_label) << endl; 
+    DistanceCopy[returnIndex(source_label)] = INFTY2;
+    while( visited != True ){
+        index = minIndex(DistanceCopy);
+        cout << index << endl;
+        DistanceCopy[index] = INFTY2;
+        visited[index] = true;
+        for(int i = 0; i < num_nodes; i++){
+            if(Distance[i] > Distance[index] + returnWeight(nodes[index].label,nodes[i].label)){
+                Distance[i] = Distance[index] + returnWeight(nodes[index].label,nodes[i].label);
+            }
+        }
+    }
+    return Distance;
 }
 
 int main(){
     // test code
     Graph G;
     // G.inputGraph();
-    // G.addNode(6);
-    // G.addNode(2);
-    // G.addNode(3);
-    // G.addNode(15);
-    // G.addNode(48);    
-    // G.addNode(83);
-    // G.addNode(71);
-    // G.addNode(5);
-    // G.addNode(64);
-    // G.addNode(16);
-    // G.addNode(8);
-    // G.addNode(23);
+    G.addNode(6);
+    G.addNode(2);
+    G.addNode(3);
+    G.addNode(15);
+    G.addNode(48);    
+    G.addNode(83);
+    G.addNode(71);
+    G.addNode(5);
+    G.addNode(64);
+    G.addNode(16);
+    G.addNode(8);
+    G.addNode(23);
     // G.addEdge(6,2);
     // G.addEdge(6,15);
     // G.addEdge(2,3);
@@ -213,29 +314,47 @@ int main(){
     // G.addEdge(71,5);
     // G.addEdge(5,64);
     // G.addEdge(64,3);
-    G.addNode(1);
-    G.addNode(2);
-    G.addNode(3);
-    G.addNode(4);
-    G.addNode(5);
-    G.addNode(6);
-    G.addNode(7);
-    G.addNode(8);
-    G.addEdge(1,2);
-    G.addEdge(1,3);
-    G.addEdge(2,3);
-    G.addEdge(3,5);
-    G.addEdge(5,4);
-    G.addEdge(5,6);
-    G.addEdge(2,4);
-    G.addEdge(2,5);
-    G.addEdge(3,7);
-    G.addEdge(3,8);
-    G.addEdge(7,8);
-    G.printGraph();
-    Graph B = G.BFS(1);
+    G.addWeightedEdge(6,2,4);
+    G.addWeightedEdge(6,15,5);
+    G.addWeightedEdge(2,3,9);
+    G.addWeightedEdge(3,15,1);
+    G.addWeightedEdge(3,48,3);
+    G.addWeightedEdge(15,48,2);
+    G.addWeightedEdge(48,83,6);
+    G.addWeightedEdge(48,71,1);
+    G.addWeightedEdge(71,16,6);
+    G.addWeightedEdge(16,8,9);
+    G.addWeightedEdge(16,23,10);
+    G.addWeightedEdge(71,5,2);
+    G.addWeightedEdge(5,64,7);
+    G.addWeightedEdge(64,3,6);
+    // G.addNode(1);
+    // G.addNode(2);
+    // G.addNode(3);
+    // G.addNode(4);
+    // G.addNode(5);
+    // G.addNode(6);
+    // G.addNode(7);
+    // G.addNode(8);
+    // G.addEdge(1,2);
+    // G.addEdge(1,3);
+    // G.addEdge(2,3);
+    // G.addEdge(3,5);
+    // G.addEdge(5,4);
+    // G.addEdge(5,6);
+    // G.addEdge(2,4);
+    // G.addEdge(2,5);
+    // G.addEdge(3,7);
+    // G.addEdge(3,8);
+    // G.addEdge(7,8);
+    // G.printGraph();
+    Graph B = G.BFS(71);
     B.printGraph();
-    Graph D = G.DFS(1);
+    Graph D = G.DFS(71);
     D.printGraph();
+    vector<int> Distance_Dijkstra = G.Dijkstra(71);
+    for(int i = 0; i < G.num_nodes; i++){
+        cout << "Distance of " << G.nodes[i].label << " from 71 is " << Distance_Dijkstra[i] << endl;  
+    }
     return 0;
 }
