@@ -6,7 +6,6 @@
 #include <queue>
 #include <stack>
 #include <limits>
-using namespace std;
 
 class Graph 
 {
@@ -15,7 +14,7 @@ class Graph
     struct Node
     {
         int label;
-        vector<Node*> adjNodes;
+        std::vector<Node*> adjNodes;
 
         bool operator==(const Node other) const
         {
@@ -31,7 +30,7 @@ class Graph
 
     int n; // number of nodes
     int n_total; // number of nodes added in total
-    map<int, Node*> nodes; // adjacency list for graph
+    std::map<int, Node*> nodes; // adjacency list for graph
 
     // constructors
     Graph ()
@@ -39,7 +38,7 @@ class Graph
         n = 0;
         n_total = 0;
     }
-    Graph (vector<int> labels, vector<vector<int>> adj_lists)
+    Graph (std::vector<int> labels, std::vector<std::vector<int>> adj_lists)
     {
         n = 0;
         n_total = 0;
@@ -57,7 +56,7 @@ class Graph
     }
 
     // public methods
-    void initializeGraph (vector<vector<int>> adj_lists, vector<int> new_labels = vector<int>()) // initialize graph
+    void initializeGraph (std::vector<std::vector<int>> adj_lists, std::vector<int> new_labels = std::vector<int>()) // initialize graph
     {
         bool is_empty = new_labels.empty();
         n = adj_lists.size();
@@ -99,15 +98,15 @@ class Graph
     {
         for (auto& node : nodes)
         {
-            cout << node.first << ": ";
+            std::cout << node.first << ": ";
             for (Node* adj_node : node.second->adjNodes)
             {
-                cout << adj_node->label << " ";
+                std::cout << adj_node->label << " ";
             }
-            cout << endl;
+            std::cout << std::endl;
         }
     }
-    void addNode (vector<int> labels = vector<int>(), int new_label = -1) // add node using adjacent nodes
+    void addNode (std::vector<int> labels = std::vector<int>(), int new_label = -1) // add node using adjacent nodes
     {
         Node* new_node = new Node();
         if (new_label == -1)
@@ -165,11 +164,11 @@ class Graph
         Node* new_root = new Node();
         new_root->label = root;
         new_root->adjNodes = {};
-        map<int, int> discovered;
+        std::map<int, int> discovered;
         discovered[root] = 1;
 
-        queue<Node*> order;
-        queue<Node*> original_nodes;
+        std::queue<Node*> order;
+        std::queue<Node*> original_nodes;
         order.push(new_root);
         original_nodes.push(nodes[root]);
 
@@ -209,11 +208,11 @@ class Graph
         Node* new_root = new Node();
         new_root->label = root;
         new_root->adjNodes = {};
-        map<int, int> discovered;
+        std::map<int, int> discovered;
         discovered[root] = 1;
 
-        stack<Node*> order;
-        stack<Node*> original_nodes;
+        std::stack<Node*> order;
+        std::stack<Node*> original_nodes;
         order.push(new_root);
         original_nodes.push(nodes[root]);
 
@@ -243,26 +242,26 @@ class Graph
         }
         return tree;
     }
-    pair<map<int, int>, map<int, int>> Dijkstra(int s) // Dijkstra's algorithm 
+    std::pair<std::map<int, int>, std::map<int, int>> Dijkstra(int s) // Dijkstra's algorithm 
     {
         /*
         Returns a pair with a map of distances of nodes from root node and a map
         of previous nodes for the shortest path from the root node
         */
-        map<int, int> d;
-        map<int, int> p;
-        map<int, bool> marked;
+        std::map<int, int> d;
+        std::map<int, int> p;
+        std::map<int, bool> marked;
 
         for (auto& node : nodes)
         {
-            d[node.first] = numeric_limits<int>::max();
+            d[node.first] = std::numeric_limits<int>::max();
         }
         d[s] = 0;
-        int d_min = numeric_limits<int>::max();
+        int d_min = std::numeric_limits<int>::max();
         int label_min = s;
         for (int i = 0; i < n; i++)
         {
-            d_min = numeric_limits<int>::max();
+            d_min = std::numeric_limits<int>::max();
             for (auto& node : nodes)
             {
                 if (marked[node.first])
@@ -287,12 +286,12 @@ class Graph
         }
         return {d, p};
     }
-    map<vector<int>, int> APSP() // all pairs shortest path
+    std::map<std::vector<int>, int> APSP() // all pairs shortest path
     {
         /*
         Returns a map of distances between any two nodes of the graph
         */
-        map<vector<int>, int> D;
+        std::map<std::vector<int>, int> D;
         for (auto& node1 : nodes)
         {
             for (auto& node2 : nodes)
@@ -302,7 +301,7 @@ class Graph
                     D[{node1.first, node2.first}] = 0;
                     continue;
                 }
-                D[{node1.first, node2.first}] = numeric_limits<int>::max();
+                D[{node1.first, node2.first}] = std::numeric_limits<int>::max();
             }
         }
         bool flag = false;
@@ -312,14 +311,14 @@ class Graph
             {
                 break;
             }
-            map<int, int> d = Dijkstra(node.first).first;
+            std::map<int, int> d = Dijkstra(node.first).first;
             int changes = 0;
             for (auto& dist : d)
             {
                 if (D[{node.first, dist.first}] > dist.second) 
                 {
-                    D[{node.first, dist.first}] = min(dist.second, D[{node.first, dist.first}]);
-                    D[{dist.first, node.first}] = min(dist.second, D[{dist.first, node.first}]);
+                    D[{node.first, dist.first}] = dist.second;
+                    D[{dist.first, node.first}] = dist.second;
                     changes++;
                 }  
             }
