@@ -4,10 +4,11 @@
 #include <utility>
 #define INFTY 10000000
 #define INFTY2 100000000
+#define INFTY3 1000000000
 using namespace std;
 
 int minIndex(vector<int> arr){      // Function to determine index of minimum term of an array
-    int min = INFTY;
+    int min = INFTY3;
     int index;
     for(int i = 0; i < arr.size(); i++){
         if(arr[i] < min){
@@ -51,6 +52,7 @@ public:
     Graph BFS(int);     // BFS, label of source node is taken as input
     Graph DFS(int);     // DFS, label of source node is taken as input
     vector<int> Dijkstra(int);      // Dijkstra's Algorithm, label of source node is taken as input
+    vector<vector<int>> APSP();     // All pairs shortest paths
 };
 
 Graph :: Graph(){   // Defining constructor
@@ -268,18 +270,42 @@ vector<int> Graph :: Dijkstra(int source_label){    // Implementing Dijkstra, wi
         True.push_back(true);
     }
     visited[returnIndex(source_label)] = true;
-    cout << returnIndex(source_label) << endl; 
     DistanceCopy[returnIndex(source_label)] = INFTY2;
     while( visited != True ){
         index = minIndex(DistanceCopy);
-        cout << index << endl;
         DistanceCopy[index] = INFTY2;
         visited[index] = true;
         for(int i = 0; i < num_nodes; i++){
             if(Distance[i] > Distance[index] + returnWeight(nodes[index].label,nodes[i].label)){
                 Distance[i] = Distance[index] + returnWeight(nodes[index].label,nodes[i].label);
+                DistanceCopy[i] = Distance[index] + returnWeight(nodes[index].label,nodes[i].label);
             }
         }
+    }
+    return Distance;
+}
+
+vector<vector<int>> Graph :: APSP(){    // Added APSP, want to know whether doing dijkstra num_nodes times is okay or do i need to follow the dynamic programming algorithm, which i found on the net
+    vector<vector<int>> Distance;
+    // for(int i = 0; i < num_nodes; i++){
+    //     Distance.push_back({});
+    // }
+    // for(int i = 0; i < num_nodes; i++){
+    //     for(int j = 0; j < num_nodes; j++){
+    //         Distance[i].push_back(returnWeight(nodes[i].label,nodes[j].label));
+    //     }
+    // }
+    // for(int i = 0; i < num_nodes; i++){
+    //     for(int j = 0; j < num_nodes; j++){
+    //         for(int k = 0; k < num_nodes; k++){
+    //             if(Distance[j][k] > returnWeight(nodes[j].label, nodes[i].label) + returnWeight(nodes[i].label, nodes[k].label)){
+    //                 Distance[j][k] = returnWeight(nodes[j].label, nodes[i].label) + returnWeight(nodes[i].label, nodes[k].label);
+    //             }
+    //         }
+    //     }
+    // }
+    for(int i = 0; i < num_nodes; i++){
+        Distance.push_back(Dijkstra(nodes[i].label));
     }
     return Distance;
 }
