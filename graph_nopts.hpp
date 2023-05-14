@@ -5,9 +5,8 @@
 #define INFTY 10000000
 #define INFTY2 100000000
 #define INFTY3 1000000000
-using namespace std;
 
-int minIndex(vector<int> arr){      // Function to determine index of minimum term of an array
+int minIndex(std::vector<int> arr){      // Function to determine index of minimum term of an array
     int min = INFTY3;
     int index;
     for(int i = 0; i < arr.size(); i++){
@@ -31,13 +30,13 @@ public:
     int num_nodes;      // Number of nodes in the graph
     // Node struct
     struct Node{
-        int index;      // Index of the node in the nodes vector
+        int index;      // Index of the node in the nodes std::vector
         int label;      // Label of the node the user decides            
-        vector<int> AdjList; // Each node is associated with a vector containing labels of nodes that are adjacent to it
-        pair<vector<int>,vector<int>> AdjWeight;
+        std::vector<int> AdjList; // Each node is associated with a std::vector containing labels of nodes that are adjacent to it
+        std::pair<std::vector<int>,std::vector<int>> AdjWeight;
         int degree;     // Degree of the node, may not be necessary as a variable, but I have implemented it
     };
-    vector<Node> nodes; // Vector containing the nodes of the graph
+    std::vector<Node> nodes; // std::vector containing the nodes of the graph
 
     // member functions
     Graph();    // constructor
@@ -51,8 +50,8 @@ public:
     int returnIndex(int);   // Function to return the index of a node with the label as parameter
     Graph BFS(int);     // BFS, label of source node is taken as input
     Graph DFS(int);     // DFS, label of source node is taken as input
-    vector<int> Dijkstra(int);      // Dijkstra's Algorithm, label of source node is taken as input
-    vector<vector<int>> APSP();     // All pairs shortest paths
+    std::vector<int> Dijkstra(int);      // Dijkstra's Algorithm, label of source node is taken as input
+    std::vector<std::vector<int>> APSP();     // All std::pairs shortest paths
 };
 
 Graph :: Graph(){   // Defining constructor
@@ -61,41 +60,41 @@ Graph :: Graph(){   // Defining constructor
 
 void Graph :: inputGraph(){          // Defining input function
     int n;
-    cout << "Enter the number of nodes in the graph: ";
-    cin >> n;
-    cout << endl;
+    std::cout << "Enter the number of nodes in the graph: ";
+    std::cin >> n;
+    std::cout << std::endl;
     num_nodes = n; // Assigning n to the member variable num_nodes
     for (int i = 0; i < n; i++){
         Node node;    // node is the node that will be present in our graph
         node.index = i;
-        cout << "Enter the label of the " << i+1 << " node: ";
-        cin >> node.label;   // User defines the labels for the nodes and will only use them, indexes is just for the code
-        cout << "Enter the degree of this node: ";
-        cin >> node.degree;     // User defines the degree of the node
+        std::cout << "Enter the label of the " << i+1 << " node: ";
+        std::cin >> node.label;   // User defines the labels for the nodes and will only use them, indexes is just for the code
+        std::cout << "Enter the degree of this node: ";
+        std::cin >> node.degree;     // User defines the degree of the node
         nodes.push_back(node); 
     } 
     for(int i = 0; i < n; i++){
         int val;
         int j;
-        cout << "Enter the adjcency list of the node with label " << nodes[i].label << endl;
+        std::cout << "Enter the adjcency list of the node with label " << nodes[i].label << std::endl;
         for(int k = 0; k < nodes[i].degree; k++){
-            cout << "Enter the label of the adjacent node: ";
-            cin >> val;
+            std::cout << "Enter the label of the adjacent node: ";
+            std::cin >> val;
             nodes[i].AdjList.push_back(val);    // Adding label val to the adjacency list of nodes[i]
         }
     }
 }
 
 void Graph :: printGraph(){      // Defining print function
-    cout << "The number of nodes in this graph are: " << num_nodes << endl;
-    cout << "The adjacency list is as follows: " << endl;
+    std::cout << "The number of nodes in this graph are: " << num_nodes << std::endl;
+    std::cout << "The adjacency list is as follows: " << std::endl;
     for (int i = 0; i < num_nodes; i++){
-        cout << "Label of this node is: " << nodes[i].label << ". "; // Printing label of node
-        cout << "The nodes adjacent to this node are: ";
+        std::cout << "Label of this node is: " << nodes[i].label << ". "; // Printing label of node
+        std::cout << "The nodes adjacent to this node are: ";
         for (int j = 0; j < nodes[i].degree; j++){
-            cout << nodes[i].AdjList[j] << " "; // Printing labels of adjacent nodes
+            std::cout << nodes[i].AdjList[j] << " "; // Printing labels of adjacent nodes
         }
-        cout << endl;
+        std::cout << std::endl;
     }
 }
 
@@ -125,7 +124,7 @@ void Graph :: addWeightedEdge(int label_start, int label_end, int weight){  // D
 
 void Graph :: addNode(int val){       // Defining the add node function
     num_nodes++;    // Increasing the number of nodes
-    Node node;      // Initialising a node and adding it to the nodes vector
+    Node node;      // Initialising a node and adding it to the nodes std::vector
     node.label = val;
     node.index = num_nodes - 1;
     node.degree = 0;
@@ -186,7 +185,7 @@ bool Graph :: edgeExists(int label1, int label2){   // Defining the function tha
 Graph Graph :: BFS(int source_label){   // Implementing BFS, followed the exact same algorithm given in the textbook
     Graph T;
     bool Discovered[num_nodes];
-    vector<vector<Node>> L;
+    std::vector<std::vector<Node>> L;
     int i = 0;
     for(int m = 0; m < num_nodes; m++){
         Discovered[m] = false;
@@ -213,7 +212,7 @@ Graph Graph :: BFS(int source_label){   // Implementing BFS, followed the exact 
 
 Graph Graph :: DFS(int source_label){   // Implementing DFS, followed exact same algo as given in textbook
     Graph T;
-    stack<Node> S;
+    std::stack<Node> S;
     Node parent[num_nodes];
     bool Discovered[num_nodes];
     // int count[num_nodes];
@@ -229,20 +228,20 @@ Graph Graph :: DFS(int source_label){   // Implementing DFS, followed exact same
         S.pop();
         if(!(T.returnIndex(node.label)+1)){
             T.addNode(node.label);
-            // cout << "Added node " << node.label << endl;
+            // std::cout << "Added node " << node.label << std::endl;
         }
         if(Discovered[returnIndex(node.label)] == false){
             Discovered[returnIndex(node.label)] = true;
             if(node.label != source_label){
                 T.addEdge(node.label, parent[returnIndex(node.label)].label);
-                // cout << "Added edge " << node.label << " , " << parent[returnIndex(node.label)].label << endl;
+                // std::cout << "Added edge " << node.label << " , " << parent[returnIndex(node.label)].label << std::endl;
             }
             for(int i = 0; i < node.degree; i++){
                 if(Discovered[returnIndex(node.AdjList[i])] == false){
                     S.push(nodes[returnIndex(node.AdjList[i])]);
-                    // cout << "Pushed " << node.AdjList[i] << " into the stack" << endl;
+                    // std::cout << "Pushed " << node.AdjList[i] << " into the std::stack" << std::endl;
                     parent[returnIndex(node.AdjList[i])] = node;
-                    // cout << "Parent of " << node.AdjList[i] << " is " << node.label << endl;
+                    // std::cout << "Parent of " << node.AdjList[i] << " is " << node.label << std::endl;
                 }
             }
         }
@@ -250,11 +249,11 @@ Graph Graph :: DFS(int source_label){   // Implementing DFS, followed exact same
     return T;
 }
 
-vector<int> Graph :: Dijkstra(int source_label){    // Implementing Dijkstra, will add comments if required
-    vector<int> Distance;
-    vector<int> DistanceCopy;
-    vector<bool> visited;
-    vector<bool> True;
+std::vector<int> Graph :: Dijkstra(int source_label){    // Implementing Dijkstra, will add comments if required
+    std::vector<int> Distance;
+    std::vector<int> DistanceCopy;
+    std::vector<bool> visited;
+    std::vector<bool> True;
     int index;
     for(int i = 0; i < num_nodes; i++){
         Distance.push_back(0);
@@ -285,8 +284,8 @@ vector<int> Graph :: Dijkstra(int source_label){    // Implementing Dijkstra, wi
     return Distance;
 }
 
-vector<vector<int>> Graph :: APSP(){    // Added APSP, want to know whether doing dijkstra num_nodes times is okay or do i need to follow the dynamic programming algorithm, which i found on the net
-    vector<vector<int>> Distance;
+std::vector<std::vector<int>> Graph :: APSP(){    // Added APSP, want to know whether doing dijkstra num_nodes times is okay or do i need to follow the dynamic programming algorithm, which i found on the net
+    std::vector<std::vector<int>> Distance;
     // for(int i = 0; i < num_nodes; i++){
     //     Distance.push_back({});
     // }
