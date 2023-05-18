@@ -46,6 +46,14 @@ namespace FastG{
             }
         }
 
+        void undir::add_edge(vertex& u, vertex& v) {
+            return add_edge(u, v, 1);
+        }
+
+        void undir::add_edge(vertex& u, vertex& v, int w) {
+            return add_edge(u.index, v.index, w);
+        }
+
         int dir::E() {
             int E = 0, V = this->V();
             for(int i = 0; i < V; i++) {

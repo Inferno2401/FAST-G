@@ -3,7 +3,11 @@
 namespace FastG{
 
     namespace Graph{
-
+        
+        void undir::add_edge(int u, int v) {
+            return add_edge(u, v, 1);
+        }
+        
         void undir::add_edge(int u, int v, int w) {
             try {
                 if(u < 1 || v < 1) throw 2;
@@ -51,6 +55,14 @@ namespace FastG{
                     return;
                 }
             }
+        }
+
+        void undir::add_edge(vertex& u, vertex& v) {
+            return add_edge(u, v, 1);
+        }
+
+        void undir::add_edge(vertex& u, vertex& v, int w) {
+            return add_edge(u.index, v.index, w);
         }
 
         int undir::deg(int i) {

@@ -38,7 +38,9 @@ namespace FastG{
 
             void add_vertex(int v);
             virtual void add_edge(int u, int v);
-            virtual void add_edge(int u, int v, int weight);
+            virtual void add_edge(int u, int v, int w);
+            virtual void add_edge(vertex& u, vertex& v);
+            virtual void add_edge(vertex& u, vertex& v, int w);
 
             int V();
             virtual int E();
@@ -56,8 +58,11 @@ namespace FastG{
             public:
 
             void add_edge(int u, int v);
-            void add_edge(int u, int v, int weight);
+            void add_edge(int u, int v, int w);
+            void add_edge(vertex& u, vertex& v);
+            void add_edge(vertex& u, vertex& v, int w);
             int E();
+
             int deg(int i);
             int deg(vertex v);
 
@@ -70,7 +75,9 @@ namespace FastG{
             public:
 
             void add_edge(int u, int v);
-            void add_edge(int u, int v, int weight);
+            void add_edge(int u, int v, int w);
+            void add_edge(vertex& u, vertex& v);
+            void add_edge(vertex& u, vertex& v, int w);
             int E();
             int in_deg(int i);
             int in_deg(vertex v);
