@@ -16,7 +16,7 @@ namespace FastG {
                 if(!visited[G.adjList[v.index - 1][i].first.index]) {
 
                     DFS(G, G.adjList[v.index - 1][i].first, visited, DFSorder);
-                    
+
                 }
             }
         }
@@ -84,6 +84,7 @@ namespace FastG {
         DFS(G, v, visited, DFSorder);
 
         return DFSorder;
+        
     }
 
     std::vector<Graph::vertex> DFSorder(Graph::dir& G, Graph::vertex& v) {
@@ -94,6 +95,7 @@ namespace FastG {
         DFS(G, v, visited, DFSorder);
 
         return DFSorder;
+
     }
 
     Graph::undir DFSTree(Graph::undir& G, Graph::vertex& v) {
@@ -105,6 +107,7 @@ namespace FastG {
         DFS(G, v, visited, DFSTree);
 
         return DFSTree;
+
     }
 
     Graph::dir DFSTree(Graph::dir& G, Graph::vertex& v) {
@@ -116,6 +119,7 @@ namespace FastG {
         DFS(G, v, visited, DFSTree);
 
         return DFSTree;
+
     }
 
 }
