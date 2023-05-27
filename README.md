@@ -7,3 +7,7 @@ The 13 mentees involved with the project will be divided amongst three teams. Th
 # Week 1-2 Tasks
 
 In the first half week, you will be assigned some basic reading to get familiar with Graph terminology. Then in the next 7-8 days, we will come to basic traversal algorithms like BFS, DFS. Ideally in this week, you should get some idea about Git pull requests and C++ OOP as well. The main task for this week will be to design a robust Graph Base Class, and implement traversal algorithms as features in the class.
+
+# Week 3 Tasks (starting 22-05-23)
+
+Implement any MST algorithm, study a bit of LP, and wrap up week 1,2.
