@@ -8,6 +8,8 @@
 #include <limits>
 #include <set>
 
+using namespace std;
+
 class Graph
 {
 public:
