@@ -23,6 +23,36 @@ int minIndex(vector<int> arr){      // Function to determine index of minimum te
     return index;
 }
 
+int maxIndex(vector<int> arr){
+    int max = -1;
+    int index;
+    for(int i = 0; i < arr.size(); i++){
+        if(arr[i] > max){
+            max = arr[i];
+            index = i;
+        }
+    }
+    return index;
+}
+
+vector<int> selectionSort(vector<int> arr){
+    vector<int> copy = arr;
+    int index;
+    int temp;
+    for(int i = 0; i < arr.size(); i++){
+        index = maxIndex(copy);
+        temp = arr[index];
+        arr[index] = arr[arr.size()-i-1];
+        arr[arr.size()-i-1] = temp;
+        temp = copy[index];
+        copy[index] = copy[copy.size()-1];
+        copy[copy.size()-1] = temp;
+        copy.pop_back();
+    }
+    vector<int> result = arr;
+    return result;
+}
+
 // Graph Class
 class Graph{
 
@@ -47,12 +77,14 @@ public:
     void addEdge(int, int);     // Function to add an edge with two labels as parameters
     void addWeightedEdge(int, int, int);    // Function to add a weighted edge with two labels and weight as parameters
     bool edgeExists(int, int);      // Function to check if an edge exists between two labels
+    bool cycleExists();
     int returnWeight(int, int);     // Function to return the weight of the edge between two labels
     int returnIndex(int);   // Function to return the index of a node with the label as parameter
     Graph BFS(int);     // BFS, label of source node is taken as input
     Graph DFS(int);     // DFS, label of source node is taken as input
     vector<int> Dijkstra(int);      // Dijkstra's Algorithm, label of source node is taken as input
     vector<vector<int>> APSP();     // All pairs shortest paths
+    Graph Kruskal();    // Kruskal's Algo to find the MST
 };
 
 Graph :: Graph(){   // Defining constructor
@@ -216,10 +248,6 @@ Graph Graph :: DFS(int source_label){   // Implementing DFS, followed exact same
     stack<Node> S;
     Node parent[num_nodes];
     bool Discovered[num_nodes];
-    // int count[num_nodes];
-    // for(int m = 0; m < num_nodes; m++){
-    //     count[m] = 0;
-    // }
     for(int m = 0; m < num_nodes; m++){
         Discovered[m] = false;
     }
@@ -229,20 +257,16 @@ Graph Graph :: DFS(int source_label){   // Implementing DFS, followed exact same
         S.pop();
         if(!(T.returnIndex(node.label)+1)){
             T.addNode(node.label);
-            // cout << "Added node " << node.label << endl;
         }
         if(Discovered[returnIndex(node.label)] == false){
             Discovered[returnIndex(node.label)] = true;
             if(node.label != source_label){
                 T.addEdge(node.label, parent[returnIndex(node.label)].label);
-                // cout << "Added edge " << node.label << " , " << parent[returnIndex(node.label)].label << endl;
             }
             for(int i = 0; i < node.degree; i++){
                 if(Discovered[returnIndex(node.AdjList[i])] == false){
                     S.push(nodes[returnIndex(node.AdjList[i])]);
-                    // cout << "Pushed " << node.AdjList[i] << " into the stack" << endl;
                     parent[returnIndex(node.AdjList[i])] = node;
-                    // cout << "Parent of " << node.AdjList[i] << " is " << node.label << endl;
                 }
             }
         }
@@ -310,6 +334,42 @@ vector<vector<int>> Graph :: APSP(){    // Added APSP, want to know whether doin
     return Distance;
 }
 
+// Graph Graph :: Kruskal(){
+//     Graph mst;
+//     for(int i = 0; i < num_nodes; i++){
+//         mst.addNode(nodes[i].label);
+//     }
+//     vector<int> distance;
+//     for(int i = 0; i < num_nodes; i ++){
+//         for(int j = 0; j < nodes[i].degree; j++){
+//             distance.push_back(returnWeight(nodes[i].label,nodes[i].AdjList[j]));
+//         }
+//     }
+//     vector<int> sorted = selectionSort(distance);
+//     vector<int> sorted_distance;
+//     for(int i = 0; i < num_nodes; i++){
+//         sorted_distance.push_back(sorted[2*i]);
+//     }
+    
+// }
+
+bool Graph :: cycleExists(){
+    int num_edges = 0;
+    for(int i = 0; i < num_nodes; i++){
+        for(int j = 0; j < num_nodes; j++){
+            if(edgeExists(nodes[i].label,nodes[j].label)){
+                num_edges++;
+            }
+        }
+    }
+    num_edges = num_edges/2;
+    if(num_edges == num_nodes - 1){
+        return 0;
+    }
+    else{
+        return 1;
+    }
+}
 int main(){
     // test code
     Graph G;
@@ -389,5 +449,14 @@ int main(){
         }
         cout << endl;
     }
+    Graph T;
+    T.addNode(1);
+    T.addNode(4);
+    T.addNode(6);
+    T.addNode(7);
+    T.addEdge(1,4);
+    T.addEdge(1,6);
+    T.addEdge(1,7);
+    cout << T.cycleExists();
     return 0;
 }
