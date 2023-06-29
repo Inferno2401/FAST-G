@@ -44,4 +44,6 @@ int main(){
     G.printGraph();
     Graph B = G.BFS(71);
     B.printGraph();
+    Graph D = G.DFS(71);
+    D.printGraph();
 }
