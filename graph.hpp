@@ -22,6 +22,36 @@ int minIndex( std::vector<int> arr ) {
     return index;
 }
 
+int maxIndex(std::vector<int> arr){
+    int max = -1;
+    int index;
+    for(int i = 0; i < arr.size(); i++){
+        if(arr[i] > max){
+            max = arr[i];
+            index = i;
+        }
+    }
+    return index;
+}
+
+std::vector<int> selectionSort(std::vector<int> arr){
+    std::vector<int> copy = arr;
+    int index;
+    int temp;
+    for(int i = 0; i < arr.size(); i++){
+        index = maxIndex(copy);
+        temp = arr[index];
+        arr[index] = arr[arr.size()-i-1];
+        arr[arr.size()-i-1] = temp;
+        temp = copy[index];
+        copy[index] = copy[copy.size()-1];
+        copy[copy.size()-1] = temp;
+        copy.pop_back();
+    }
+    std::vector<int> result = arr;
+    return result;
+}
+
 class Graph {
 
     public:
@@ -41,14 +71,18 @@ class Graph {
     void addNode(int);
     void addUnweightedEdge(int, int);
     void addWeightedEdge(int, int, int);
+    void removeEdge(int, int);
     bool edgeExists(int, int);
     int returnIndex(int);
     int returnWeight(int, int);
+    std::pair<std::vector<int>,std::vector<std::pair<int,int>>> sortEdges(std::pair<std::vector<int>,std::vector<std::pair<int,int>>>);
+    bool cycleExists();
 
     Graph BFS(int);
     Graph DFS(int);
     std::vector<int> Dijkstra(int);
     std::vector<std::vector<int>> APSP();
+    Graph Kruskal();
 };
 
 Graph :: Graph(){
@@ -127,6 +161,30 @@ void Graph :: addWeightedEdge(int start, int end, int weight){
     }
 }
 
+void Graph :: removeEdge(int start, int end){
+    if(!edgeExists(start, end)){
+        std::cout << "The edge does not exist";
+    }
+    else{
+        int i;
+        for(i = 0; i < nodes[returnIndex(start)]->adj_list.first.size(); i++){
+            if(end == nodes[returnIndex(start)]->adj_list.first[i]->label){
+                break;
+            }
+        }
+        int j;
+        for(j = 0; j < nodes[returnIndex(end)]->adj_list.first.size(); j++){
+            if(start == nodes[returnIndex(end)]->adj_list.first[j]->label){
+                break;
+            }
+        }
+        nodes[returnIndex(end)]->adj_list.first.erase(nodes[returnIndex(end)]->adj_list.first.begin()+j);
+        nodes[returnIndex(end)]->adj_list.second.erase(nodes[returnIndex(end)]->adj_list.second.begin()+j);
+        nodes[returnIndex(start)]->adj_list.first.erase(nodes[returnIndex(start)]->adj_list.first.begin()+i);
+        nodes[returnIndex(start)]->adj_list.second.erase(nodes[returnIndex(start)]->adj_list.second.begin()+i);
+    }
+}
+
 bool Graph :: edgeExists(int start, int end){
     bool flag = false;
 
@@ -177,6 +235,46 @@ int Graph :: returnWeight(int start, int end){
         return INFTY;
     }
 }
+
+std::pair<std::vector<int>,std::vector<std::pair<int,int>>> Graph :: sortEdges(std::pair<std::vector<int>,std::vector<std::pair<int,int>>> edges){
+    std::pair<std::vector<int>,std::vector<std::pair<int,int>>> copy = edges;
+    int index;
+    int temp;
+    std::pair<int,int> temp_edge;
+    for(int i = 0; i < edges.first.size(); i++){
+        index = maxIndex(copy.first);
+        temp = edges.first[index];
+        temp_edge = edges.second[index];
+        edges.first[index] = edges.first[edges.first.size()-i-1];
+        edges.second[index] = edges.second[edges.second.size()-i-1];
+        edges.first[edges.first.size()-i-1] = temp;
+        edges.second[edges.second.size()-i-1] = temp_edge;
+        temp = copy.first[index];
+        temp_edge = copy.second[index];
+        copy.first[index] = copy.first[copy.first.size()-1];
+        copy.second[index] = copy.second[copy.second.size()-1];
+        copy.first[copy.first.size()-1] = temp;
+        copy.second[copy.second.size()-1] = temp_edge;
+        copy.first.pop_back();
+        copy.second.pop_back();
+    }
+    return edges;
+}
+
+bool Graph :: cycleExists(){
+    int num_edges = 0;
+    for(int i = 0; i < num_nodes; i++){
+        num_edges = num_edges + nodes[i]->adj_list.first.size();
+    }
+    num_edges = num_edges/2;
+    if(num_edges >= num_nodes){
+        return true;
+    }
+    else{
+        return false;
+    }
+}
+
 
 Graph Graph :: BFS(int source){
     Graph T;
@@ -278,4 +376,50 @@ std::vector<std::vector<int>> Graph :: APSP(){
         Distance.push_back(Dijkstra(nodes[i]->label));
     }
     return Distance;
+}
+
+Graph Graph :: Kruskal(){
+    Graph T;
+    int num_edges = 0;
+    int count = 0;
+    std::pair<int,int> edge;
+    std::pair<std::vector<int>,std::vector<std::pair<int,int>>> edges;
+    for(int i = 0; i < num_nodes; i++){
+        for(int j = 0; j < nodes[i]->adj_list.first.size(); j++){
+            bool flag = false;
+            for(int k = 0; k < edges.second.size(); k++){
+                if(((nodes[i]->label == edges.second[k].first) && (nodes[i]->adj_list.first[j]->label == edges.second[k].second)) || ((nodes[i]->label == edges.second[k].second) && (nodes[i]->adj_list.first[j]->label == edges.second[k].first))){
+                    flag = true;
+                }
+            }
+            if(flag == false){
+                edges.first.push_back(nodes[i]->adj_list.second[j]);
+                edge.first = nodes[i]->label;
+                edge.second = nodes[i]->adj_list.first[j]->label;
+                edges.second.push_back(edge);
+            }
+
+        }
+    }
+    std::pair<std::vector<int>,std::vector<std::pair<int,int>>> edges_sorted = sortEdges(edges);
+    for(int i = 0; i < edges_sorted.first.size(); i++){
+        std::cout << i << " - Weight - " << edges_sorted.first[i] <<  " Edge - " << edges_sorted.second[i].first << ", " << edges_sorted.second[i].second << std::endl;
+    }
+    while(num_edges < num_nodes-1){
+        if(!(T.returnIndex(edges_sorted.second[count].first) + 1)){
+            T.addNode(edges_sorted.second[count].first);
+        }
+        if(!(T.returnIndex(edges_sorted.second[count].second) + 1)){
+            T.addNode(edges_sorted.second[count].second);
+        }
+        T.addWeightedEdge(edges_sorted.second[count].first, edges_sorted.second[count].second, returnWeight(edges_sorted.second[count].first, edges_sorted.second[count].second));
+        if(T.cycleExists()){
+            T.removeEdge(edges_sorted.second[count].first, edges_sorted.second[count].second);
+        }
+        else{
+            num_edges++;
+        }
+        count++;
+    }
+    return T;
 }

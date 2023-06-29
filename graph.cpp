@@ -7,52 +7,52 @@ int main(){
     // test code
     Graph G;
     // G.inputGraph();
-    G.addNode(6);
-    G.addNode(2);
-    G.addNode(3);
-    G.addNode(15);
-    G.addNode(48);    
-    G.addNode(83);
-    G.addNode(71);
-    G.addNode(5);
-    G.addNode(64);
-    G.addNode(16);
-    G.addNode(8);
-    G.addNode(23);
-    G.addWeightedEdge(6,2,4);
-    G.addWeightedEdge(6,15,5);
-    G.addWeightedEdge(2,3,9);
-    G.addWeightedEdge(3,15,1);
-    G.addWeightedEdge(3,48,3);
-    G.addWeightedEdge(15,48,2);
-    G.addWeightedEdge(48,83,6);
-    G.addWeightedEdge(48,71,1);
-    G.addWeightedEdge(71,16,6);
-    G.addWeightedEdge(16,8,9);
-    G.addWeightedEdge(16,23,10);
-    G.addWeightedEdge(71,5,2);
-    G.addWeightedEdge(5,64,7);
-    G.addWeightedEdge(64,3,6);
-    // G.addNode(1);
+    // G.addNode(6);
     // G.addNode(2);
     // G.addNode(3);
-    // G.addNode(4);
-    // G.addWeightedEdge(1,2,7);
-    // G.addWeightedEdge(2,3,5);
-    // G.addWeightedEdge(1,3,3);
-    // G.addWeightedEdge(1,4,7);
+    // G.addNode(15);
+    // G.addNode(48);    
+    // G.addNode(83);
+    // G.addNode(71);
+    // G.addNode(5);
+    // G.addNode(64);
+    // G.addNode(16);
+    // G.addNode(8);
+    // G.addNode(23);
+    // G.addWeightedEdge(6,2,4);
+    // G.addWeightedEdge(6,15,5);
+    // G.addWeightedEdge(2,3,9);
+    // G.addWeightedEdge(3,15,1);
+    // G.addWeightedEdge(3,48,3);
+    // G.addWeightedEdge(15,48,2);
+    // G.addWeightedEdge(48,83,6);
+    // G.addWeightedEdge(48,71,1);
+    // G.addWeightedEdge(71,16,6);
+    // G.addWeightedEdge(16,8,9);
+    // G.addWeightedEdge(16,23,10);
+    // G.addWeightedEdge(71,5,2);
+    // G.addWeightedEdge(5,64,7);
+    // G.addWeightedEdge(64,3,6);
+    G.addNode(1);
+    G.addNode(2);
+    G.addNode(3);
+    G.addNode(4);
+    G.addWeightedEdge(1,2,7);
+    G.addWeightedEdge(2,3,5);
+    G.addWeightedEdge(1,3,3);
+    G.addWeightedEdge(1,4,7);
     G.printGraph();
     cout << "---------------------------------------" << endl;
     cout << "BFS: " << endl;
-    Graph B = G.BFS(71);
+    Graph B = G.BFS(2);
     B.printGraph();
     cout << "---------------------------------------" << endl;
     cout << "DFS: " << endl;
-    Graph D = G.DFS(71);
+    Graph D = G.DFS(2);
     D.printGraph();
     cout << "---------------------------------------" << endl;
     cout << "Dijkstra: " << endl;
-    vector<int> dist = G.Dijkstra(71);
+    vector<int> dist = G.Dijkstra(2);
     for(int i = 0; i < dist.size(); i++){
         cout << "Distance of " << G.nodes[i]->label << " from 71 is " << dist[i] << endl; 
     }
@@ -67,4 +67,20 @@ int main(){
         cout << endl;
     }
     cout << "---------------------------------------" << endl;
+    // cout << "Selection Sort: " << endl;
+    // vector<int> array;
+    // int k;
+    // for(int i = 0; i < 10; i++){
+    //     cin >> k;
+    //     array.push_back(k);
+    // }
+    // vector<int> sorted = selectionSort(array);
+    // for(int i = 0; i < sorted.size(); i++){
+    //     cout << sorted[i] << " ";
+    // }
+    // cout << endl;
+    // cout << "---------------------------------------" << endl;
+    cout << "Kruskal: " << endl;
+    Graph K = G.Kruskal();
+    K.printGraph();
 }
