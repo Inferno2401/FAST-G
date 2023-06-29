@@ -27,7 +27,7 @@ class Graph {
     public:
 
     int num_nodes;
-    
+
     struct Node{
         int label;
         std::pair<std::vector<Node*>,std::vector<int>> adj_list;
@@ -47,6 +47,8 @@ class Graph {
 
     Graph BFS(int);
     Graph DFS(int);
+    std::vector<int> Dijkstra(int);
+    std::vector<std::vector<int>> APSP();
 };
 
 Graph :: Graph(){
@@ -233,4 +235,47 @@ Graph Graph :: DFS(int source){
         }
     }
     return T;
+}
+
+std::vector<int> Graph :: Dijkstra(int source){
+    std::vector<int> Distance;
+    std::vector<int> DistanceCopy;
+    std::vector<bool> visited;
+    std::vector<bool> True;
+    int index;
+    for(int i = 0; i < num_nodes; i++){
+        Distance.push_back(0);
+    }
+    for(int i = 0; i < num_nodes; i++){
+        Distance[i] = returnWeight(source,nodes[i]->label);
+    }
+    DistanceCopy = Distance;
+    for(int i = 0; i < num_nodes; i++){
+        visited.push_back(false);
+    }
+    for(int i = 0; i < num_nodes; i++){
+        True.push_back(true);
+    }
+    visited[returnIndex(source)] = true;
+    DistanceCopy[returnIndex(source)] = INFTY2;
+    while(visited != True){
+        index = minIndex(DistanceCopy);
+        DistanceCopy[index] = INFTY2;
+        visited[index] = true;
+        for(int i = 0; i < num_nodes; i++){
+            if(Distance[i] > Distance[index] + returnWeight(nodes[index]->label, nodes[i]->label)){
+                Distance[i] = Distance[index] + returnWeight(nodes[index]->label, nodes[i]->label);
+                DistanceCopy[i] = Distance[index] + returnWeight(nodes[index]->label, nodes[i]->label);
+            }
+        }
+    }
+    return Distance;
+}
+
+std::vector<std::vector<int>> Graph :: APSP(){
+    std::vector<std::vector<int>> Distance;
+    for(int i = 0; i < num_nodes; i++){
+        Distance.push_back(Dijkstra(nodes[i]->label));
+    }
+    return Distance;
 }

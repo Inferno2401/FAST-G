@@ -42,8 +42,29 @@ int main(){
     // G.addWeightedEdge(1,3,3);
     // G.addWeightedEdge(1,4,7);
     G.printGraph();
+    cout << "---------------------------------------" << endl;
+    cout << "BFS: " << endl;
     Graph B = G.BFS(71);
     B.printGraph();
+    cout << "---------------------------------------" << endl;
+    cout << "DFS: " << endl;
     Graph D = G.DFS(71);
     D.printGraph();
+    cout << "---------------------------------------" << endl;
+    cout << "Dijkstra: " << endl;
+    vector<int> dist = G.Dijkstra(71);
+    for(int i = 0; i < dist.size(); i++){
+        cout << "Distance of " << G.nodes[i]->label << " from 71 is " << dist[i] << endl; 
+    }
+    cout << "---------------------------------------" << endl;
+    cout << "APSP: " << endl;
+    vector<vector<int>> Distance_APSP = G.APSP();
+    for(int i = 0; i < G.num_nodes; i++){
+        cout << "Label " << G.nodes[i]->label << " - "; 
+        for(int j = 0; j < G.num_nodes; j++){
+            cout << Distance_APSP[i][j] << " ";
+        }
+        cout << endl;
+    }
+    cout << "---------------------------------------" << endl;
 }
