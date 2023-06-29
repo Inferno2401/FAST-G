@@ -46,6 +46,7 @@ class Graph {
     int returnWeight(int, int);
 
     Graph BFS(int);
+    Graph DFS(int);
 };
 
 Graph :: Graph(){
@@ -83,6 +84,7 @@ void Graph :: inputGraph(){
 }
 
 void Graph :: printGraph(){
+    std::cout << "The number of nodes in the graph is " << num_nodes << std::endl;
     for(int i = 0; i < num_nodes; i++){
         std::cout << "Label - " << nodes[i]->label << " - ";
         for(int j = 0; j < nodes[i]->adj_list.first.size(); j++){
@@ -143,15 +145,12 @@ int Graph :: returnIndex(int label){
             break;
         }
     }
-
     if(num_nodes == 0){
         return -1;
     }
-
-    else if(nodes[index]->label == label){
+    else if(index < num_nodes){
         return index;
     }
-
     else{
         return -1;
     }
@@ -163,7 +162,6 @@ int Graph :: returnWeight(int start, int end){
     }
 
     if(edgeExists(start,end)){
-        std::cout << edgeExists(start, end) << std::endl;
         int i;
         for(i = 0; i < nodes[returnIndex(start)]->adj_list.first.size(); i++){
             if (nodes[returnIndex(start)]->adj_list.first[i]->label == end){
@@ -203,5 +201,36 @@ Graph Graph :: BFS(int source){
         }
         i++;
     }    
+    return T;
+}
+
+Graph Graph :: DFS(int source){
+    Graph T;
+    std::stack<Node*> S;
+    Node* parent[num_nodes];
+    bool Discovered[num_nodes];
+    for(int m = 0; m < num_nodes; m++){
+        Discovered[m] = false;
+    }
+    S.push(nodes[returnIndex(source)]);
+    while(S.empty() != 1){
+        Node* node = S.top();
+        S.pop();
+        if(!(T.returnIndex(node->label)+1)){
+            T.addNode(node->label);
+        }
+        if(Discovered[returnIndex(node->label)] == false){
+            Discovered[returnIndex(node->label)] = true;
+            if(node->label != source){
+                T.addWeightedEdge(node->label, parent[returnIndex(node->label)]->label, returnWeight(node->label, parent[returnIndex(node->label)]->label));
+            }
+            for(int i = 0; i < node->adj_list.first.size(); i++){
+                if(Discovered[returnIndex(node->adj_list.first[i]->label)] == false){
+                    S.push(nodes[returnIndex(node->adj_list.first[i]->label)]);
+                    parent[returnIndex(node->adj_list.first[i]->label)] = node;
+                }
+            }
+        }
+    }
     return T;
 }
