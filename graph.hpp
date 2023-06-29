@@ -27,7 +27,7 @@ class Graph {
     public:
 
     int num_nodes;
-
+    
     struct Node{
         int label;
         std::pair<std::vector<Node*>,std::vector<int>> adj_list;
