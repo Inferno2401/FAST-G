@@ -66,6 +66,7 @@ class Graph {
     std::vector<Node*> nodes;
 
     Graph();
+    bool operator==(Graph);
     void inputGraph();
     void printGraph();
     void addNode(int);
@@ -75,6 +76,7 @@ class Graph {
     bool edgeExists(int, int);
     int returnIndex(int);
     int returnWeight(int, int);
+    int numEdges();
     std::pair<std::vector<int>,std::vector<std::pair<int,int>>> sortEdges(std::pair<std::vector<int>,std::vector<std::pair<int,int>>>);
     bool cycleExists();
 
@@ -87,6 +89,56 @@ class Graph {
 
 Graph :: Graph(){
     num_nodes = 0;
+}
+
+bool Graph :: operator==(Graph A){
+    if( num_nodes != A.num_nodes){
+        return false;
+    }
+    std::vector<bool> flag;
+    std::vector<bool> True;
+    for(int i = 0; i < num_nodes; i++){
+        True.push_back(true);
+    }
+    std::vector<int> arr1;
+    for(int i = 0; i < num_nodes; i++){
+        arr1.push_back(nodes[i]->label);
+    }
+    arr1 = selectionSort(arr1);
+    std::vector<int> arr2;
+    for(int i = 0; i < num_nodes; i++){
+        arr2.push_back(A.nodes[i]->label);
+    }
+    arr2 = selectionSort(arr2);
+    if(arr1 != arr2){
+        return false;
+    }
+    else{
+        for(int i = 0; i < num_nodes; i++){
+            std::vector<int> array1;
+            for(int j = 0; j < nodes[returnIndex(arr1[i])]->adj_list.first.size(); j++){
+                array1.push_back(nodes[returnIndex(arr1[i])]->adj_list.first[j]->label);
+            }
+            std::vector<int> array2;
+            for(int j = 0; j < A.nodes[A.returnIndex(arr1[i])]->adj_list.first.size(); j++){
+                array2.push_back(A.nodes[A.returnIndex(arr1[i])]->adj_list.first[j]->label);
+            }
+            array1 = selectionSort(array1);
+            array2 = selectionSort(array2);
+            if(array1 == array2){
+                flag.push_back(true);
+            }
+            else{
+                flag.push_back(false);
+            }
+        }
+        if(flag == True){
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
 }
 
 void Graph :: inputGraph(){
@@ -236,6 +288,15 @@ int Graph :: returnWeight(int start, int end){
     }
 }
 
+int Graph ::numEdges(){
+    int num_edges = 0;
+    for(int i = 0; i < num_nodes; i++){
+        num_edges = num_edges + nodes[i]->adj_list.first.size();
+    }
+    num_edges = num_edges/2;
+    return num_edges;
+}
+
 std::pair<std::vector<int>,std::vector<std::pair<int,int>>> Graph :: sortEdges(std::pair<std::vector<int>,std::vector<std::pair<int,int>>> edges){
     std::pair<std::vector<int>,std::vector<std::pair<int,int>>> copy = edges;
     int index;
@@ -262,17 +323,46 @@ std::pair<std::vector<int>,std::vector<std::pair<int,int>>> Graph :: sortEdges(s
 }
 
 bool Graph :: cycleExists(){
-    int num_edges = 0;
+    bool flag = false;
+    int source;
+    bool flag2 = false;
     for(int i = 0; i < num_nodes; i++){
-        num_edges = num_edges + nodes[i]->adj_list.first.size();
+        source = nodes[i]->label;
+        std::stack<Node*> S;
+        Node* parent[num_nodes];
+        bool Discovered[num_nodes];
+        for(int m = 0; m < num_nodes; m++){
+            Discovered[m] = false;
+        }
+        S.push(nodes[returnIndex(source)]);
+        while(S.empty() != 1){
+            Node* node = S.top();
+            S.pop();
+            if(Discovered[returnIndex(node->label)] == false){
+                Discovered[returnIndex(node->label)] = true;
+                for(int i = 0; i < node->adj_list.first.size(); i++){
+                    std::stack<Node*> Copy = S;
+                    for(int j = 0; j < Copy.size(); j++){
+                        if(node->adj_list.first[i] == Copy.top()){
+                            flag2 = true;
+                            break;
+                        }
+                        else{
+                            Copy.pop();
+                        }
+                    }
+                    if(Discovered[returnIndex(node->adj_list.first[i]->label)] == false){
+                        if(flag2){
+                            flag = true;
+                        }
+                        S.push(nodes[returnIndex(node->adj_list.first[i]->label)]);
+                        parent[returnIndex(node->adj_list.first[i]->label)] = node;
+                    }
+                }
+            }
+        }
     }
-    num_edges = num_edges/2;
-    if(num_edges >= num_nodes){
-        return true;
-    }
-    else{
-        return false;
-    }
+    return flag;
 }
 
 
