@@ -70,21 +70,26 @@ class Graph {
     void inputGraph();
     void printGraph();
     void addNode(int);
-    void addUnweightedEdge(int, int);
+    void addDirectedWeightedEdge(int, int, int);
     void addWeightedEdge(int, int, int);
     void removeEdge(int, int);
     bool edgeExists(int, int);
     int returnIndex(int);
+    int findIndex(std::vector<Node*>, int);
     int returnWeight(int, int);
     int numEdges();
     std::pair<std::vector<int>,std::vector<std::pair<int,int>>> sortEdges(std::pair<std::vector<int>,std::vector<std::pair<int,int>>>);
     bool cycleExists();
+    void findPaths(int, int, int, std::vector<Node*>&, std::pair<std::vector<std::vector<Node*>>,std::vector<int>>&);
+    void sortPaths(std::pair<std::vector<std::vector<Node*>>,std::vector<int>>&);
 
     Graph BFS(int);
     Graph DFS(int);
     std::vector<int> Dijkstra(int);
     std::vector<std::vector<int>> APSP();
     Graph Kruskal();
+    int FordFulkerson(int, int);
+
 };
 
 Graph :: Graph(){
@@ -189,15 +194,13 @@ void Graph :: addNode(int label){
     nodes.push_back(node);
 }
 
-void Graph :: addUnweightedEdge(int start, int end){
-    if(!(returnIndex(start)+1) && !(returnIndex(end)+1)){
+void Graph :: addDirectedWeightedEdge(int start, int end, int weight){
+    if(!(returnIndex(start)+1) || !(returnIndex(end)+1)){
         std::cout << "Node does not exist, either add a valid node or use addNode" << std::endl;
     }
     else{
         nodes[returnIndex(start)]->adj_list.first.push_back(nodes[returnIndex(end)]);
-        nodes[returnIndex(start)]->adj_list.second.push_back(1);
-        nodes[returnIndex(end)]->adj_list.first.push_back(nodes[returnIndex(start)]);
-        nodes[returnIndex(end)]->adj_list.second.push_back(1);
+        nodes[returnIndex(start)]->adj_list.second.push_back(weight);
     }
 }
 
@@ -268,6 +271,21 @@ int Graph :: returnIndex(int label){
     }
 }
 
+int Graph :: findIndex(std::vector<Node*> array, int label){
+    int index = 0;
+    for(index = 0; index < array.size(); index++){
+        if(array[index]->label == label){
+            break;
+        }
+    }
+    if(index < array.size()){
+        return index;
+    }
+    else{
+        return -1;
+    }
+}
+
 int Graph :: returnWeight(int start, int end){
     if(start == end){
         return 0;
@@ -293,7 +311,6 @@ int Graph ::numEdges(){
     for(int i = 0; i < num_nodes; i++){
         num_edges = num_edges + nodes[i]->adj_list.first.size();
     }
-    num_edges = num_edges/2;
     return num_edges;
 }
 
@@ -365,6 +382,40 @@ bool Graph :: cycleExists(){
     return flag;
 }
 
+void Graph :: findPaths(int source, int current, int destination, std::vector<Node*>& currentPath, std::pair<std::vector<std::vector<Node*>>,std::vector<int>>& paths){
+    if(current == destination){
+        paths.first.push_back(currentPath);
+        return;
+    }
+    if(current == source){
+        currentPath.push_back(nodes[returnIndex(source)]);
+    }
+    for(int i = 0; i < nodes[returnIndex(current)]->adj_list.first.size(); i++){
+        currentPath.push_back(nodes[returnIndex(current)]->adj_list.first[i]);
+        findPaths(source, nodes[returnIndex(current)]->adj_list.first[i]->label, destination, currentPath, paths);
+        currentPath.erase(currentPath.begin() + findIndex(currentPath, nodes[returnIndex(current)]->adj_list.first[i]->label));
+    }
+}
+
+void Graph :: sortPaths(std::pair<std::vector<std::vector<Node*>>,std::vector<int>>& paths){
+    std::vector<int> copy = paths.second;
+    int index;
+    int temp;
+    std::vector<Node*> temp2;
+    for(int i = 0; i < paths.second.size(); i++){
+        index = maxIndex(copy);
+        temp = paths.second[index];
+        paths.second[index] = paths.second[paths.second.size()-i-1];
+        paths.second[paths.second.size()-i-1] = temp;
+        temp2 = paths.first[index];
+        paths.first[index] = paths.first[paths.first.size()-i-1];
+        paths.first[paths.first.size()-i-1] = temp2;
+        temp = copy[index];
+        copy[index] = copy[copy.size()-1];
+        copy[copy.size()-1] = temp;
+        copy.pop_back();
+    }
+}
 
 Graph Graph :: BFS(int source){
     Graph T;
@@ -512,4 +563,45 @@ Graph Graph :: Kruskal(){
         count++;
     }
     return T;
+}
+
+int Graph :: FordFulkerson(int source, int destination){
+    std::vector<Node*> currentPath;
+    std::pair<std::vector<std::vector<Node*>>,std::vector<int>> paths;
+    findPaths(source, source, destination, currentPath, paths);
+    std::vector<int> weights;
+    for(int i = 0; i < paths.first.size(); i++){
+        weights.clear();
+        for(int j = 0; j < paths.first[i].size()-1; j++){
+            weights.push_back(returnWeight((paths.first[i])[j]->label, (paths.first[i])[j+1]->label));
+        }
+        paths.second.push_back(selectionSort(weights)[0]);
+    }
+    sortPaths(paths);
+    std::pair<std::vector<std::vector<Node*>>,std::vector<std::vector<int>>> flow;
+    flow.first = paths.first;
+    for(int i = 0; i < paths.first.size(); i++){
+        weights.clear();
+        for(int j = 0; j < paths.first[i].size()-1; j++){
+            weights.push_back(returnWeight((paths.first[i])[j]->label, (paths.first[i])[j+1]->label));
+        }
+        flow.second.push_back(weights);
+    }
+    int result = 0;
+    for(int i = paths.first.size() - 1; i >= 0; i--){
+        bool flag = false;
+        int value = flow.second[i][minIndex(flow.second[i])];
+        for(int j = 0; j < paths.first[i].size() - 1; j++){
+            for(int k = 0; k < flow.first.size(); k++){
+                if(((findIndex(flow.first[k], paths.first[i][j]->label) - findIndex(flow.first[k], paths.first[i][j+1]->label)) == -1) && (flow.second[k][findIndex(flow.first[k], (paths.first[i])[j]->label)] >= value)){
+                    flow.second[k][findIndex(flow.first[k], (paths.first[i])[j]->label)] -= value;
+                    flag = true;
+                }
+            }
+        }
+        if(flag){
+            result += value;
+        }
+    }
+    return result;
 }
