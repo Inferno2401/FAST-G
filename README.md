@@ -11,3 +11,7 @@ In the first half week, you will be assigned some basic reading to get familiar 
 # Week 3 Tasks (starting 22-05-23)
 
 Implement any MST algorithm, study a bit of LP, and wrap up week 1,2.
+
+# Week 4 Onwards
+
+Read about network flow from Kleinberg and Tardos, implement various algorithms for solving the network flow problem, analyse complexity and strong-polynomialness. (flexible)
