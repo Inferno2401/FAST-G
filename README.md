@@ -3,3 +3,6 @@ This library contains implementations of various Graph Optimization and Search a
 
 # Graph.hpp
 All the relevant code regarding the Graph base class and the algorithms that were taught under this SoC is contained inside this header file. Up till now, I have implemented Breadth-First-Search (BFS), Depth-First-Search (DJS), Dijisktra's algorithm, Prim's algorithm and the Ford-Fulkerson algorithm.
+
+# Matching_Solver.cpp
+This file uses the header file defined above to implement a solution for the perfect matching problem in case of unweighted bipartite graphs.
