@@ -431,7 +431,7 @@ public:
         return {g, p};
     }
     
-    std::map<std::vector<int>, int> FloydWarshall()
+    std::map<std::vector<int>, int> FloydWarshall() // Floyd-Warshall algorithm
     {
         std::map<std::vector<int>, int> D = APSP();
         for (auto &k : nodes)
@@ -450,7 +450,7 @@ public:
         return D;
     }
 
-    int EdmondsKarp(int s, int t)
+    int EdmondsKarp(int s, int t) // Edmonds-Karp algorithm
     {
         std::map<std::set<int>, int> flow;
         for (auto &edge : edges)
@@ -503,7 +503,7 @@ public:
         return max_flow;
     }
 
-    int MinCostFlow(int s, int t)
+    int MinCostFlow(int s, int t) // Minimum-cost flow algorithm
     {
         std::map<std::set<int>, int> flow;
         std::map<std::set<int>, int> cost;
@@ -559,7 +559,7 @@ public:
         return min_cost_flow;
     }
 
-    std::pair<std::map<int, int>, std::map<int, int>> PerfectMatching()
+    std::pair<std::map<int, int>, std::map<int, int>> PerfectMatching() // Perfect Matching algorithm
     {
         std::map<int, int> match;
         std::map<int, int> p;
@@ -585,7 +585,7 @@ public:
         return {match, p};
     }
 
-    std::vector<int> ApproxVertexCover()
+    std::vector<int> ApproxVertexCover() // Approximation algorithm for Vertex Cover problem
     {
         std::vector<int> vertex_cover;
         std::map<std::set<int>, int> temp_edges = edges;
