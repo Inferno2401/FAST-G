@@ -7,8 +7,7 @@
 #include <stack>
 #include <limits>
 #include <set>
-
-using namespace std;
+#include <cmath>
 
 class Graph
 {
@@ -378,44 +377,237 @@ public:
         Graph spanning_tree = trees.begin()->second;
         return spanning_tree;
     }
-};
 
-int main()
-{
-    // test code
-    Graph graph({0, 1, 2, 3}, {{3, 1}, {0, 2}, {1, 3}, {2, 0}});
-    graph.addEdge(0, 2);
-    graph.addNode({0, 2, 3}, 8);
-    graph.addNode({8, 3}, 9);
-    graph.printGraph();
-
-    cout << endl;
-
-    Graph tree = graph.DFS(1);
-    tree.printGraph();
-
-    cout << endl;
-
-    map<int, int> d = graph.Dijkstra(1).first;
-    map<int, int> p = graph.Dijkstra(1).second;
-
-    map<vector<int>, int> D = graph.APSP();
-
-    for (auto &node1 : graph.nodes)
+    int heuristic(int s, int t) // heuristic function for A* search algorithm
     {
-        for (auto &node2 : graph.nodes)
+        // Assuming Euclidean distance as heuristic
+        int dx = abs(nodes[s]->label - nodes[t]->label);
+        int dy = abs(nodes[s]->label - nodes[t]->label);
+        return (int)(sqrt(dx * dx + dy * dy));
+    }
+
+    std::pair<std::map<int, int>, std::map<int, int>> AStar(int s, int t) // A* search algorithm
+    {
+        std::map<int, int> g;
+        std::map<int, int> f;
+        std::map<int, int> p;
+        std::map<int, bool> marked;
+
+        for (auto &node : nodes)
         {
-            cout << node1.first << ", " << node2.first << ": " << D[{node1.first, node2.first}] << endl;
+            g[node.first] = std::numeric_limits<int>::max();
+            f[node.first] = std::numeric_limits<int>::max();
         }
+        g[s] = 0;
+        f[s] = heuristic(s, t);
+
+        while (!marked[t])
+        {
+            int label_min = -1;
+            int f_min = std::numeric_limits<int>::max();
+            for (auto &node : nodes)
+            {
+                if (!marked[node.first] && f[node.first] < f_min)
+                {
+                    f_min = f[node.first];
+                    label_min = node.first;
+                }
+            }
+            if (label_min == -1)
+            {
+                break;
+            }
+            marked[label_min] = true;
+            for (Node *node : nodes[label_min]->adjNodes)
+            {
+                if (!marked[node->label] && g[node->label] > g[label_min] + edges[std::set<int>{label_min, node->label}])
+                {
+                    g[node->label] = g[label_min] + edges[std::set<int>{label_min, node->label}];
+                    f[node->label] = g[node->label] + heuristic(node->label, t);
+                    p[node->label] = label_min;
+                }
+            }
+        }
+        return {g, p};
+    }
+    
+    std::map<std::vector<int>, int> FloydWarshall()
+    {
+        std::map<std::vector<int>, int> D = APSP();
+        for (auto &k : nodes)
+        {
+            for (auto &i : nodes)
+            {
+                for (auto &j : nodes)
+                {
+                    if (D[{i.first, k.first}] != std::numeric_limits<int>::max() && D[{k.first, j.first}] != std::numeric_limits<int>::max())
+                    {
+                        D[{i.first, j.first}] = std::min(D[{i.first, j.first}], D[{i.first, k.first}] + D[{k.first, j.first}]);
+                    }
+                }
+            }
+        }
+        return D;
     }
 
-    for (auto& dist : d)
+    int EdmondsKarp(int s, int t)
     {
-        cout << dist.first << ": " << dist.second << endl;
+        std::map<std::set<int>, int> flow;
+        for (auto &edge : edges)
+        {
+            flow[edge.first] = 0;
+        }
+        int max_flow = 0;
+        while (true)
+        {
+            std::map<int, int> p;
+            std::map<int, int> M;
+            p[s] = s;
+            M[s] = std::numeric_limits<int>::max();
+            std::queue<int> Q;
+            Q.push(s);
+            while (!Q.empty())
+            {
+                int u = Q.front();
+                Q.pop();
+                for (Node *v : nodes[u]->adjNodes)
+                {
+                    if (edges[std::set<int>{u, v->label}] > flow[std::set<int>{u, v->label}] && p.find(v->label) == p.end())
+                    {
+                        p[v->label] = u;
+                        M[v->label] = std::min(M[u], edges[std::set<int>{u, v->label}] - flow[std::set<int>{u, v->label}]);
+                        if (v->label != t)
+                        {
+                            Q.push(v->label);
+                        }
+                        else
+                        {
+                            while (p[v->label] != v->label)
+                            {
+                                u = p[v->label];
+                                flow[std::set<int>{u, v->label}] += M[t];
+                                flow[std::set<int>{v->label, u}] -= M[t];
+                                v = nodes[u];
+                            }
+                            max_flow += M[t];
+                            break;
+                        }
+                    }
+                }
+            }
+            if (M.find(t) == M.end())
+            {
+                break;
+            }
+        }
+        return max_flow;
     }
-    cout << endl;
-    for (auto& prev : p)
+
+    int MinCostFlow(int s, int t)
     {
-        cout << prev.first << ": " << prev.second << endl;
+        std::map<std::set<int>, int> flow;
+        std::map<std::set<int>, int> cost;
+        for (auto &edge : edges)
+        {
+            flow[edge.first] = 0;
+            cost[edge.first] = 0;
+        }
+        int min_cost_flow = 0;
+        while (true)
+        {
+            std::map<int, int> p;
+            std::map<int, int> M;
+            p[s] = s;
+            M[s] = std::numeric_limits<int>::max();
+            std::queue<int> Q;
+            Q.push(s);
+            while (!Q.empty())
+            {
+                int u = Q.front();
+                Q.pop();
+                for (Node *v : nodes[u]->adjNodes)
+                {
+                    if (edges[std::set<int>{u, v->label}] > flow[std::set<int>{u, v->label}] && p.find(v->label) == p.end())
+                    {
+                        p[v->label] = u;
+                        M[v->label] = std::min(M[u], edges[std::set<int>{u, v->label}] - flow[std::set<int>{u, v->label}]);
+                        if (v->label != t)
+                        {
+                            Q.push(v->label);
+                        }
+                        else
+                        {
+                            while (p[v->label] != v->label)
+                            {
+                                u = p[v->label];
+                                flow[std::set<int>{u, v->label}] += M[t];
+                                flow[std::set<int>{v->label, u}] -= M[t];
+                                cost[std::set<int>{u, v->label}] += M[t];
+                                v = nodes[u];
+                            }
+                            min_cost_flow += cost[std::set<int>{u, v->label}];
+                            break;
+                        }
+                    }
+                }
+            }
+            if (M.find(t) == M.end())
+            {
+                break;
+            }
+        }
+        return min_cost_flow;
     }
-}
+
+    std::pair<std::map<int, int>, std::map<int, int>> PerfectMatching()
+    {
+        std::map<int, int> match;
+        std::map<int, int> p;
+        for (auto &node : nodes)
+        {
+            match[node.first] = -1;
+        }
+        for (auto &node : nodes)
+        {
+            if (match[node.first] == -1)
+            {
+                for (Node *adjNode : node.second->adjNodes)
+                {
+                    if (match[adjNode->label] == -1)
+                    {
+                        match[node.first] = adjNode->label;
+                        match[adjNode->label] = node.first;
+                        break;
+                    }
+                }
+            }
+        }
+        return {match, p};
+    }
+
+    std::vector<int> ApproxVertexCover()
+    {
+        std::vector<int> vertex_cover;
+        std::map<std::set<int>, int> temp_edges = edges;
+
+        while (!temp_edges.empty())
+        {
+            std::set<int> edge = temp_edges.begin()->first;
+            vertex_cover.push_back(*edge.begin());
+            vertex_cover.push_back(*(++edge.begin()));
+
+            for (auto it = temp_edges.begin(); it != temp_edges.end();)
+            {
+                if (it->first.find(*edge.begin()) != it->first.end() || it->first.find(*(++edge.begin())) != it->first.end())
+                {
+                    it = temp_edges.erase(it);
+                }
+                else
+                {
+                    ++it;
+                }
+            }
+        }
+        return vertex_cover;
+    }  
+};
